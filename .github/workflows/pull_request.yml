@@ -1,3 +1,5 @@
+name: ci pull request
+
 on:
   pull_request:
     types: [ opened, synchronize, reopened, ready_for_review ]
@@ -30,6 +32,8 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v3 
+      - name: install
+        run: sudo apt install ninja-build
       - name: version
         run: clang-format --version && cmake --version && ninja --version
       - name: cmake
