@@ -46,5 +46,13 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v3 
-      - name: test
-        run: echo 'there will be tests'
+      - name: install
+        run: sudo apt install ninja-build
+      - name: version
+        run: clang-format --version && cmake --version && ninja --version
+      - name: cmake
+        run: cmake -B${{github.workspace}}/build -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+      - name: build
+        run: ninja -C${{github.workspace}}/build
+      - name: test run
+        run: ${{github.workspace}}/build/tests --exit=true
