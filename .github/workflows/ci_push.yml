@@ -21,6 +21,8 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v3 
+      - name: version
+        run: clang-format --version && cmake --version
       - name: cmake
         run: cmake -B${{github.workspace}}/build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
       - name: tidy
