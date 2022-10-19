@@ -1,0 +1,35 @@
+name: ci_push
+
+on:
+  push:
+    branches: [ "*" ]
+
+addons:
+  apt:
+    packages:
+      - cmake
+      - ninja
+
+
+install:
+  - sudo apt install clang
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2 
+      - run: clang-format --dry-run --Werror *.cpp
+
+  tidy:
+    runs-on: ubuntu-latest
+    needs: [cmake]
+    steps:
+    - uses: actions/checkout@v2 
+    - run: clang-tidy -p build *.cpp
+
+  cmake:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2 
+      - run: cmake -B${{github.workspace}}/build -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
