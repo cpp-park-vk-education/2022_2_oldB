@@ -46,7 +46,7 @@ IndentWidth: 4
 PenaltyReturnTypeOnItsOwnLine: 200
 PointerAlignment: Right
 SortIncludes: true
-SpaceBeforeParens: ControlStatementsExceptControlMacros
+SpaceBeforeParens: ControlStatements
 SpacesBeforeTrailingComments: 2
 TabWidth: 4
 UseTab: Never
