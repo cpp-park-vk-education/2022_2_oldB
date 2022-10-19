@@ -1,7 +1,7 @@
 #define DOCTEST_CONFIG_IMPLEMENT
-#include "doctest.h"
-
 #include <iostream>
+
+#include "doctest.h"
 
 int add_one(int x);
 int program();
