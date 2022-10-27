@@ -13,7 +13,7 @@ jobs:
       - name: version
         run: clang-format --version
       - name: format
-        run: clang-format --dry-run --Werror src/*.cpp
+        run: clang-format --dry-run --Werror src/*.cpp src/*.h
   tidy:
     runs-on: ubuntu-latest
     needs: format
@@ -25,7 +25,7 @@ jobs:
       - name: cmake
         run: cmake -B${{github.workspace}}/build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
       - name: tidy
-        run: clang-tidy -p build src/*.cpp
+        run: clang-tidy -p build src/*.cpp src/*.h
   build:
     runs-on: ubuntu-latest
     needs: tidy
@@ -35,27 +35,29 @@ jobs:
       - name: install
         run: sudo apt install ninja-build
       - name: version
-        run: clang-format --version && cmake --version && ninja --version
+        run: cmake --version && ninja --version
       - name: cmake
         run: cmake -B${{github.workspace}}/build -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
       - name: build
         run: ninja -C${{github.workspace}}/build
+      - name: save build
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          path: build
   test:
     runs-on: ubuntu-latest
     needs: build
     steps:
       - name: checkout
         uses: actions/checkout@v3 
-      - name: install
-        run: sudo apt install ninja-build
-      - name: version
-        run: clang-format --version && cmake --version && ninja --version
-      - name: cmake
-        run: cmake -B${{github.workspace}}/build -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-      - name: build
-        run: ninja -C${{github.workspace}}/build
+      - name: get build
+        uses: actions/download-artifact@v2
+        with:
+          name: build
+          path: build
       - name: test run
-        run: ${{github.workspace}}/build/test --exit=true
+        run: chmod +x build/test && ${{github.workspace}}/build/test --exit=true
   memtests:
     runs-on: ubuntu-latest
     needs: build
