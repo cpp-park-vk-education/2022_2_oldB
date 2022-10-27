@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "doctest.h"
+#include "add_one.h"
 
 int add_one(int x);
 int program();
@@ -22,10 +23,6 @@ int main(int argc, char** argv) {
 int program() {
     std::cout << add_one(2) << std::endl;
     return 0;
-}
-
-int add_one(int x) {
-    return x + 1;
 }
 
 TEST_CASE("add-one") {
