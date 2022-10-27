@@ -11,9 +11,11 @@ aux_source_directory(src SRC)
 add_executable(app ${SRC})
 
 target_include_directories(app PRIVATE src)
-target_compile_definitions(app PRIVATE DOCTEST_CONFIG_DISABLE)
 
-add_executable(test
-    ${src}
-)
-target_include_directories(test PRIVATE doctest)
+find_package(GTest REQUIRED)
+aux_source_directory(test TEST_SRC)
+add_executable(test ${TEST_SRC})
+target_include_directories(test PUBLIC src)
+target_link_libraries(test gtest pthread)
+target_compile_options(test PUBLIC --coverage -fsanitize=address,undefined,leak -fno-sanitize-recover=all -fsanitize-undefined-trap-on-error)
+target_link_options(test PUBLIC --coverage -fsanitize=address,undefined,leak -fno-sanitize-recover=all -fsanitize-undefined-trap-on-error)
