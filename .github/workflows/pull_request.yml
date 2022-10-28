@@ -59,7 +59,7 @@ jobs:
       - name: test run
         run: chmod +x build/test && ${{github.workspace}}/build/test --exit=true
       - name: save test
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with: 
           name: test
           path: test
@@ -70,7 +70,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v3
       - name: build
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v2
         with:
           name: test
           path: test
