@@ -69,7 +69,7 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v3
-      - name: build
+      - name: test
         uses: actions/download-artifact@v2
         with:
           name: test
