@@ -58,23 +58,20 @@ jobs:
           path: build
       - name: test run
         run: chmod +x build/test && ${{github.workspace}}/build/test --exit=true
-      - name: save test
-        uses: actions/upload-artifact@v2
-        with: 
-          name: test
-          path: test
   coverage:
     runs-on: ubuntu-latest
     needs: test
     steps:
       - name: checkout
         uses: actions/checkout@v3
-      - name: test
+      - name: build
         uses: actions/download-artifact@v2
         with:
-          name: test
-          path: test
+          name: build
+          path: build
+      - name: test run
+        run: chmod +x build/test && ${{github.workspace}}/build/test --exit=true
       - name: gcov 
-        uses: gcov ${{github.workspace}}/build/test/*.gcno
+        run: gcov ${{github.workspace}}/build/test/*.gcno
       - name: lcov
-        uses: lcov --capture --directory build/CMakeFiles/test.dir/test
+        run: lcov --capture --directory build/CMakeFiles/test.dir/test
