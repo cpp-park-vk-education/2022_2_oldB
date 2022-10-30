@@ -74,4 +74,6 @@ jobs:
       - name: gcov 
         run: cd build/test && gcov CMakeFiles/test.dir/*.gcno
       - name: lcov
-        run: lcov --capture --directory build/test/CMakeFiles/test.dir
+        run: lcov --capture --directory build/test/CMakeFiles/test.dir --output-file build/gtest_coverage.info
+      - name: coverage
+        run: lcov --remove build/gtest_coverage.info '/usr/*' --output-file build/gtest_coverage.info.cleaned
