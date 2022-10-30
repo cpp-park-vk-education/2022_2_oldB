@@ -74,4 +74,4 @@ jobs:
       - name: gcov 
         run: cd build/test && gcov CMakeFiles/test.dir/*.gcno
       - name: lcov
-        run: lcov --capture --directory build/test/CMakeFiles/test.dir/test
+        run: lcov --capture --directory build/test/CMakeFiles/test.dir
