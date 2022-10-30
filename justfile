@@ -1,17 +1,14 @@
-run: build
+run TYPE="Debug": (build TYPE)
   ./build/app
 
-format:
-  clang-format --dry-run --Werror src/*.cpp
-
-tidy: cmake
-  clang-tidy -p build src/*.cpp
-
-build: cmake
+build TYPE: (cmake TYPE)
   ninja -Cbuild
 
-cmake:
-  cmake -Bbuild -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+test: (build "Debug")
+  ./build/test/test
+
+cmake TYPE:
+  cmake -Bbuild -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE={{TYPE}}
 
 clean:
   rm -r build

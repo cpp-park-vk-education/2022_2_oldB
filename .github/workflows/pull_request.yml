@@ -16,30 +16,28 @@ jobs:
         run: clang-format --dry-run --Werror src/*.cpp src/*.h
   tidy:
     runs-on: ubuntu-latest
-    needs: format
     steps:
       - name: checkout
         uses: actions/checkout@v3 
       - name: version
         run: clang-format --version && cmake --version
       - name: cmake
-        run: cmake -B${{github.workspace}}/build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+        run: cmake -Bbuild -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
       - name: tidy
         run: clang-tidy -p build src/*.cpp src/*.h
   build:
     runs-on: ubuntu-latest
-    needs: tidy
     steps:
       - name: checkout
         uses: actions/checkout@v3 
       - name: install
-        run: sudo apt install ninja-build
+        run: sudo apt install ninja-build libgtest-dev
       - name: version
         run: cmake --version && ninja --version
       - name: cmake
-        run: cmake -B${{github.workspace}}/build -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+        run: cmake -Bbuild -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Debug
       - name: build
-        run: ninja -C${{github.workspace}}/build
+        run: ninja -Cbuild
       - name: save build
         uses: actions/upload-artifact@v2
         with:
@@ -57,21 +55,23 @@ jobs:
           name: build
           path: build
       - name: test run
-        run: chmod +x build/test && ${{github.workspace}}/build/test --exit=true
+        run: chmod +x build/test/test && ./build/test/test
   coverage:
     runs-on: ubuntu-latest
     needs: test
     steps:
       - name: checkout
         uses: actions/checkout@v3
+      - name: install
+        run: sudo apt install lcov
       - name: build
         uses: actions/download-artifact@v2
         with:
           name: build
           path: build
       - name: test run
-        run: chmod +x build/test && ${{github.workspace}}/build/test --exit=true
+        run: chmod +x build/test/test && ./build/test/test
       - name: gcov 
-        run: gcov ${{github.workspace}}/build/test/*.gcno
+        run: cd build/test && gcov CMakeFiles/test.dir/*.gcno
       - name: lcov
-        run: lcov --capture --directory build/CMakeFiles/test.dir/test
+        run: lcov --capture --directory build/test/CMakeFiles/test.dir
