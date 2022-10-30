@@ -16,7 +16,6 @@ jobs:
         run: clang-format --dry-run --Werror src/*.cpp src/*.h
   tidy:
     runs-on: ubuntu-latest
-    needs: format
     steps:
       - name: checkout
         uses: actions/checkout@v3 
@@ -28,7 +27,6 @@ jobs:
         run: clang-tidy -p build src/*.cpp src/*.h
   build:
     runs-on: ubuntu-latest
-    needs: tidy
     steps:
       - name: checkout
         uses: actions/checkout@v3 
