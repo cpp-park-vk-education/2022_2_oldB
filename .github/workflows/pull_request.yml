@@ -57,7 +57,7 @@ jobs:
           name: build
           path: build
       - name: test run
-        run: chmod +x build/test && ${{github.workspace}}/build/test --exit=true
+        run: chmod +x build/test/test && ./build/test/test
   coverage:
     runs-on: ubuntu-latest
     needs: test
