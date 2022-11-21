@@ -6,9 +6,6 @@ class PSQLRepositoryUser
     void InsertUser(Users u) {
     }
 
-    void InsertRole(Role r) {
-    }
-
     int GetNewId() {
     }
 
@@ -25,8 +22,5 @@ class PSQLRepositoryUser
     }
 
     void DeleteUser(Users u) {
-    }
-
-    void DeleteUser(int Id) {
     }
 }
