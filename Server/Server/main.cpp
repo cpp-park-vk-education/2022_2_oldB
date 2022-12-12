@@ -6,9 +6,10 @@
 #include <set>
 #include <utility>
 #include <boost/asio.hpp>
-#include "../Client/Client/chat_message.hpp"
+#include "../../Client/Client/chat_message.hpp"
 
 #define MAIN_SERVER 2001
+//#define RETURN_SERVER 2001
 
 using boost::asio::ip::tcp;
 
@@ -93,11 +94,13 @@ private:
                         break;
                     }
                     case 1: {
+                        //ChatMessage copy;
 
+                        //do_write();
                         break;
                     }
                     case 2: {
-
+                        //
                         break;
                     }
                     default:
@@ -134,6 +137,20 @@ private:
                     if (!write_messages_.empty()) {
                         do_write();
                     }
+                }
+                else
+                    room_.leave(shared_from_this());
+            });
+    }
+
+    void do_write(ChatMessage& message) {  // возвращаем информацию одному клиенту
+        auto self(shared_from_this());
+        boost::asio::async_write(socket_,
+            boost::asio::buffer(message.data(), message.length()),
+            [this, self](boost::system::error_code ec, std::size_t /*length*/)
+            {
+                if (!ec) {
+
                 }
                 else
                     room_.leave(shared_from_this());
