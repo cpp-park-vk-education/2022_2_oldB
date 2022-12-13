@@ -6,7 +6,7 @@
 #include <set>
 #include <utility>
 #include <boost/asio.hpp>
-#include "../../Client/Client/chat_message.hpp"
+#include "../../chat_message.hpp"
 
 #define MAIN_SERVER 2001
 //#define RETURN_SERVER 2001
@@ -86,26 +86,7 @@ private:
             [this, self](boost::system::error_code ec, std::size_t /*length*/)
             {
                 if (!ec && read_message_.decode_header()) {
-                    int operation_code = read_message_.operation_code();
-                    switch (operation_code)
-                    {
-                    case 0: {
-                        do_read_body();
-                        break;
-                    }
-                    case 1: {
-                        //ChatMessage copy;
-
-                        //do_write();
-                        break;
-                    }
-                    case 2: {
-                        //
-                        break;
-                    }
-                    default:
-                        break;
-                    }
+                    do_read_body();
                 }
                 else
                     room_.leave(shared_from_this());
@@ -114,10 +95,10 @@ private:
 
     void do_read_body() {  // читаем тело сообщения
         auto self(shared_from_this());
-        boost::asio::async_read(socket_, boost::asio::buffer(read_message_.body(), read_message_.body_length()),
+        boost::asio::async_read(socket_, boost::asio::buffer(read_message_.inf(), read_message_.inf_length()),
             [this, self](boost::system::error_code ec, std::size_t /*length*/)
             {
-                if (!ec) {
+                if (!ec && read_message_.decode_text()) {
                     room_.deliver(read_message_);
                     do_read_header();
                 }
@@ -137,20 +118,6 @@ private:
                     if (!write_messages_.empty()) {
                         do_write();
                     }
-                }
-                else
-                    room_.leave(shared_from_this());
-            });
-    }
-
-    void do_write(ChatMessage& message) {  // возвращаем информацию одному клиенту
-        auto self(shared_from_this());
-        boost::asio::async_write(socket_,
-            boost::asio::buffer(message.data(), message.length()),
-            [this, self](boost::system::error_code ec, std::size_t /*length*/)
-            {
-                if (!ec) {
-
                 }
                 else
                     room_.leave(shared_from_this());
@@ -202,10 +169,7 @@ int main(int argc, char* argv[]) {
 
 
         //MAIN_SERVER
-        tcp::endpoint ep(tcp::v4(), std::atoi("2001"));  // возвращает список комнат
-        ChatServer servers(io_service, ep);
-
-        tcp::endpoint ep(tcp::v4(), std::atoi("2002"));  // один порт - один чат
+        tcp::endpoint ep(tcp::v4(), std::atoi("2001"));
         ChatServer servers(io_service, ep);
 
         io_service.run();  // удержание до завершения
