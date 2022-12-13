@@ -1,0 +1,196 @@
+#ifndef CHAT_MESSAGE_HPP
+#define CHAT_MESSAGE_HPP
+
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <string>
+
+class ChatMessage {
+public:
+    enum { type_length = 1, lenght_length = 5, max_username_length = 20, max_body_length = 512, header_length = type_length + 2 * lenght_length };
+    enum { send_message = 0, check_password = 1 };
+
+    ChatMessage()
+        : type(0), username(""), body(""), body_length_(0), username_length_(0), message("") {}
+    ChatMessage(std::string& _username, std::string& _body, bool _type = send_message)
+        : type(_type), username(_username), body(_body), body_length_(0), username_length_(0), message("") {
+        encode();
+    }
+    ChatMessage(const ChatMessage& other) {
+        type = other.type;
+        username = other.username;
+        body = other.body;
+        username_length_ = other.username_length_;
+        body_length_ = other.body_length_;
+
+        for (int i = 0; i < type_length + 2 * lenght_length + username_length_ + body_length_; i++)
+            message[i] = other.message[i];
+    }
+
+    const char* data() const {
+        return message;
+    }
+
+    char* data() {
+        return message;
+    }
+
+    const char* inf() const {
+        return message + header_length;
+    }
+
+    char* inf() {
+        return message + header_length;
+    }
+
+    bool get_type() {
+        return type;
+    }
+
+    std::string& get_username() {
+        return username;
+    }
+
+    std::string& get_body() {
+        return body;
+    }
+
+    std::size_t length() const {
+        return type_length + 2 * lenght_length + username_length_ + body_length_;
+    }
+
+    std::size_t inf_length() const {
+        return body_length_ + username_length_;
+    }
+
+    std::size_t body_length() const {
+        return body_length_;
+    }
+
+    std::size_t username_length() const {
+        return username_length_;
+    }
+
+    bool set_type(const bool type) {
+        this->type = type;
+    }
+
+    bool set_username(const std::string& username) {
+        this->username = username;
+    }
+
+    bool set_body(const std::string& body) {
+        this->body = body;
+    }
+
+    bool decode_header() {
+        if (!decode_message_type())
+            return false;
+
+        if (!decode_lenght())
+            return false;
+
+        return true;
+    }
+
+    bool decode_text() {
+        decode_inf();
+
+        return true;
+    }
+
+    void encode() {
+        encode_message_type();
+        encode_lenght();
+        encode_inf();
+    }
+
+private:
+    bool type;
+    std::string username;
+    std::string body;
+
+    char message[type_length + 2 * lenght_length + max_username_length + max_body_length];
+    int username_length_;
+    int body_length_;
+
+private:
+    bool decode_message_type() {
+        if (message[0] == '0')
+            type = send_message;
+        else if (message[0] == '1')
+            type = check_password;
+        else
+            return false;
+
+        return true;
+    }
+
+    bool decode_lenght() {
+        char tmp[lenght_length + 1];
+        tmp[lenght_length] = '\0';
+        for (int i = 0; i < lenght_length; i++)
+            tmp[i] = message[type_length + i];
+
+        username_length_ = std::atoi(tmp);
+        if (!username_length_)
+            return false;
+
+        for (int i = 0; i < lenght_length; i++)
+            tmp[i] = message[type_length + lenght_length + i];
+
+        body_length_ = std::atoi(tmp);
+        if (!body_length_)
+            return false;
+
+        return true;
+    }
+
+    void decode_inf() {
+        username.clear();
+        for (int i = 0; i < username_length_; i++)
+            username.push_back(message[type_length + 2 * lenght_length + i]);
+
+        body.clear();
+        for (int i = 0; i < body_length_; i++)
+            body.push_back(message[type_length + 2 * lenght_length + username_length_ + i]);
+    }
+
+    void encode_message_type() {
+        if (type == send_message)
+            message[0] = '0';
+        else
+            message[0] = '1';
+    }
+
+    void encode_lenght() {
+        size_t t = 10;
+        int tmp = username.size();
+        for (int i = lenght_length - 1; i >= 0; i--) {
+            message[type_length + i] = std::to_string(tmp % t)[0];
+            tmp -= tmp % t;
+            t *= 10;
+        }
+        username_length_ = username.size();
+
+        t = 10;
+        tmp = body.size();
+        for (int i = lenght_length - 1; i >= 0; i--) {
+            message[type_length + lenght_length + i] = std::to_string(tmp % t)[0];
+            tmp -= tmp % t;
+            t *= 10;
+        }
+        body_length_ = body.size();
+    }
+
+    void encode_inf() {
+        for (int i = 0; i < username.size(); i++)
+            message[type_length + 2 * lenght_length + i] = username[i];
+
+        for (int i = 0; i < body.size(); i++)
+            message[type_length + 2 * lenght_length + username.size() + i] = body[i];
+    }
+};
+
+#endif // CHAT_MESSAGE_HPP

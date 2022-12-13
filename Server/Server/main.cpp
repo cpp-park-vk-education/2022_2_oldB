@@ -9,7 +9,7 @@
 #include "../../chat_message.hpp"
 
 #define MAIN_SERVER 2001
-//#define RETURN_SERVER 2001
+#define RETURN_SERVER [2002, 2003, 2004]
 
 using boost::asio::ip::tcp;
 
@@ -159,12 +159,6 @@ private:
 
 int main(int argc, char* argv[]) {
     try {
-        //if (argc < 2)
-        //{
-        //    std::cerr << "Usage: chat_server <port> [<port> ...]\n";
-        //    return 1;
-        //}
-
         boost::asio::io_service io_service;
 
 
