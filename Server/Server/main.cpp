@@ -6,9 +6,9 @@
 #include <set>
 #include <utility>
 #include <boost/asio.hpp>
-#include "../../chat_message.hpp"
+#include "../../Client/Client/chat_message.hpp"
 
-#define MAIN_SERVER 2001
+#define MAIN_SERVER 2002
 #define RETURN_SERVER [2002, 2003, 2004]
 
 using boost::asio::ip::tcp;
@@ -163,7 +163,7 @@ int main(int argc, char* argv[]) {
 
 
         //MAIN_SERVER
-        tcp::endpoint ep(tcp::v4(), std::atoi("2001"));
+        tcp::endpoint ep(tcp::v4(), MAIN_SERVER);
         ChatServer servers(io_service, ep);
 
         io_service.run();  // удержание до завершения

@@ -6,18 +6,18 @@
 #include <cstring>
 #include <string>
 
-class ChatMessage {
+class Message {
 public:
     enum { type_length = 1, lenght_length = 5, max_username_length = 20, max_body_length = 512, header_length = type_length + 2 * lenght_length };
     enum { send_message = 0, check_password = 1 };
 
-    ChatMessage()
+    Message()
         : type(0), username(""), body(""), body_length_(0), username_length_(0), message("") {}
-    ChatMessage(std::string& _username, std::string& _body, bool _type = send_message)
+    Message(std::string& _username, std::string& _body, bool _type = send_message)
         : type(_type), username(_username), body(_body), body_length_(0), username_length_(0), message("") {
         encode();
     }
-    ChatMessage(const ChatMessage& other) {
+    Message(const Message& other) {
         type = other.type;
         username = other.username;
         body = other.body;
@@ -72,16 +72,24 @@ public:
         return username_length_;
     }
 
-    bool set_type(const bool type) {
+    void set_type(const bool type) {
         this->type = type;
     }
 
-    bool set_username(const std::string& username) {
-        this->username = username;
+    bool set_username(const std::string& new_username) {
+        if (new_username.size() > max_username_length)
+            return false;
+        this->username = new_username;
+
+        return true;
     }
 
-    bool set_body(const std::string& body) {
-        this->body = body;
+    bool set_body(const std::string& new_body) {
+        if (new_body.size() > max_body_length)
+            return false;
+        this->body = new_body;
+
+        return true;
     }
 
     bool decode_header() {

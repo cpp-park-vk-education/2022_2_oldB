@@ -3,11 +3,11 @@
 #include <iostream>
 #include <thread>
 #include <boost/asio.hpp>
-#include "../../chat_message.hpp"
+#include "Message.h"
 
 using boost::asio::ip::tcp;
 
-typedef std::deque<ChatMessage> chat_message_queue;
+typedef std::deque<Message> chat_message_queue;
 
 class СhatСlient {
 public:
@@ -15,7 +15,7 @@ public:
         do_connect(ep_iter);  // подключаем пользователя к серверу
     }
 
-    void write(ChatMessage& message) {
+    void write(Message& message) {
         io_service_.post(
             [this, message]()
             {
@@ -42,7 +42,7 @@ private:
     }
 
     void do_read_header() {
-        boost::asio::async_read(socket_, boost::asio::buffer(read_message_.data(), ChatMessage::header_length),
+        boost::asio::async_read(socket_, boost::asio::buffer(read_message_.data(), Message::header_length),
             [this](boost::system::error_code ec, std::size_t /*length*/)
             {
                 if (!ec && read_message_.decode_header())  // если смогли прочитать размер сообщения из заголовка,
@@ -84,35 +84,6 @@ private:
 private:
     boost::asio::io_service& io_service_;
     tcp::socket socket_;
-    ChatMessage read_message_;
+    Message read_message_;
     chat_message_queue write_messages_;  // очередь из сообщений для определенного сервера (одна на всех клиентов)
 };
-
-//int main(int argc, char* argv[]) {
-//    try {
-//        boost::asio::io_service service;
-//
-//        tcp::resolver resolver(service);
-//        auto ep_iter = resolver.resolve({ "127.0.0.1", "2001" }); // настройка конечной точки для сокета
-//        СhatСlient client(service, ep_iter);
-//
-//        std::string username = "fedor";
-//
-//        std::thread thread([&service]() { service.run(); });  // для каждого нового клиента новый поток
-//
-//        std::string line;
-//        while (std::cin >> line) {
-//            ChatMessage message(username, line, 0);     // заполняем его данные
-//
-//            client.write(message);                     // передаем на сервер
-//        }
-//
-//        client.close();
-//        thread.join();
-//    }
-//    catch (std::exception& e) {
-//        std::cerr << "Exception: " << e.what() << "\n";
-//    }
-//
-//    return 0;
-//}
