@@ -14,6 +14,9 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 set(PROJECT_SOURCES
         main.cpp
+        Client.h
+        ChatClient.h
+        Message.h
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
