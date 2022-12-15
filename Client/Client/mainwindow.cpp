@@ -21,32 +21,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     setStyleSheet("color: #f0f0f0; background-color: #262626 ");
     ;
-
-    ui->roomsList->addItem("bebra");
-    ui->roomsList->addItem("abobus");
-
-
-//    Utility::setButtonIcon(ui->emojiButton, ":/img/img/emoji.png", 1.5);
-//    Utility::setButtonIcon(ui->attachmentsButton, ":/img/img/clip.png", 1.5);
 }
 
 MainWindow::~MainWindow() {
     delete ui;
 }
-
-
-
-//void MainWindow::on_pushButton_clicked() {
-////    std::string tmp = ui->lineEdit->text().toStdString();
-////    client.WriteMessage(tmp);
-//}
-
-//void MainWindow::write(std::string &message) {
-////    ui->lineEdit_2->insert(QString::fromStdString(message));
-//}
-
-
-
 
 void MainWindow::on_startButton_clicked()
 {
@@ -56,6 +35,25 @@ void MainWindow::on_startButton_clicked()
 
 void MainWindow::on_loginButton_clicked()
 {
+    auto const login(ui->loginLine->text());
+    auto const password(ui->passwordLine->text());
+
+    qDebug() << "LOGIN = " << login << "   PASS = " <<  password << '\n';
+
+    std::string strLogin = login.toStdString();
+    std::string strPassword = password.toStdString();
+
+//    if (client.Authorization(strLogin, strPassword)) { // to do vector<int> список чатов FIXME
+
+//    }
+
+    std::vector<QString> ports = {"6666", "8888"};
+
+    for (auto port : ports) {
+        ui->roomsList->addItem(port);
+    }
+
+//    client.Authorization()
     ui->stackedWidget_2->setCurrentIndex(3);
 }
 
@@ -67,11 +65,86 @@ void MainWindow::on_joinRoomButton_clicked()
     int portNum = roomPort.toInt(&correctConverted);
     if (correctConverted && portNum > FREE_PORT_NUM_START && portNum < FREE_PORT_NUM_END) {
         qDebug() << "SUCCESS! port = " << portNum << '\n';
-//        client.ConnectToChat(portNum);
+//        client.ConnectToChat(portNum); // CONNECTING FIXME
 
+        ui->stackedWidget->setCurrentIndex(1);
     }
+}
 
 
-//    ui->roomsList->currentItem()->text()
+void MainWindow::on_exitButton_clicked()
+{
+    QApplication::quit();
+}
+
+
+void MainWindow::on_exitButton_4_clicked()
+{
+    QApplication::quit();
+}
+
+
+void MainWindow::on_backButton_4_clicked()
+{
+    ui->stackedWidget_2->setCurrentIndex(0);
+}
+
+
+void MainWindow::on_backButton_8_clicked()
+{
+    ui->stackedWidget_2->setCurrentIndex(2);
+}
+
+
+void MainWindow::on_exitButton_9_clicked()
+{
+    QApplication::quit();
+}
+
+
+void MainWindow::on_exitLobbyButton_clicked()
+{
+    QApplication::quit();
+}
+
+
+void MainWindow::on_leaveLobbyButton_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(0);
+    ui->stackedWidget_2->setCurrentIndex(3); // rooms list
+}
+
+
+void MainWindow::on_createNewAccBtn_clicked()
+{
+    ui->stackedWidget_2->setCurrentIndex(2);
+
+}
+
+
+void MainWindow::on_createAccBtn_clicked()
+{
+    ui->stackedWidget_2->setCurrentIndex(3);
+}
+
+
+void MainWindow::on_returnFromRoomsBtn_clicked()
+{
+    ui->stackedWidget_2->setCurrentIndex(0);
+}
+
+
+void MainWindow::on_sendButton_clicked()
+{
+    sendMessage();
+}
+
+void MainWindow::sendMessage() {
+    if (!ui->inputTextEdit->toPlainText().isEmpty()) {
+        std::string message(ui->inputTextEdit->toPlainText().toStdString());
+
+//        client.WriteMessage(message); FIXME
+        ui->inputTextEdit->clear();
+    }
 }
 

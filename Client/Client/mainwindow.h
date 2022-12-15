@@ -26,7 +26,31 @@ private slots:
 
     void on_joinRoomButton_clicked();
 
+    void on_exitButton_clicked();
+
+    void on_exitButton_4_clicked();
+
+    void on_backButton_4_clicked();
+
+    void on_backButton_8_clicked();
+
+    void on_exitButton_9_clicked();
+
+    void on_exitLobbyButton_clicked();
+
+    void on_leaveLobbyButton_clicked();
+
+    void on_createNewAccBtn_clicked();
+
+    void on_createAccBtn_clicked();
+
+    void on_returnFromRoomsBtn_clicked();
+
+    void on_sendButton_clicked();
+
 private:
+    void sendMessage();
+
     Ui::MainWindow *ui;
     Client client;
 

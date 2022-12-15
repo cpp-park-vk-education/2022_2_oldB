@@ -75,7 +75,7 @@
            <string notr="true"/>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>3</number>
           </property>
           <widget class="QWidget" name="page_1">
            <layout class="QGridLayout" name="gridLayout_2">
@@ -210,7 +210,7 @@ background-color: #525252;
              <string/>
             </property>
            </widget>
-           <widget class="QLineEdit" name="username_le_2">
+           <widget class="QLineEdit" name="loginLine">
             <property name="geometry">
              <rect>
               <x>160</x>
@@ -278,7 +278,7 @@ background-color: #525252;
              <string>Exit</string>
             </property>
            </widget>
-           <widget class="QLineEdit" name="ip_address_le_3">
+           <widget class="QLineEdit" name="passwordLine">
             <property name="geometry">
              <rect>
               <x>160</x>
@@ -385,7 +385,7 @@ background-color: #525252;
              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
             </property>
            </widget>
-           <widget class="QPushButton" name="connectButton_4">
+           <widget class="QPushButton" name="createNewAccBtn">
             <property name="geometry">
              <rect>
               <x>10</x>
@@ -464,7 +464,7 @@ color: white;</string>
              <string/>
             </property>
            </widget>
-           <widget class="QPushButton" name="connectButton_9">
+           <widget class="QPushButton" name="createAccBtn">
             <property name="geometry">
              <rect>
               <x>10</x>
@@ -689,7 +689,7 @@ background-color: #54525e;</string>
             </property>
             <layout class="QHBoxLayout" name="horizontalLayout">
              <item>
-              <widget class="QPushButton" name="backButton_2">
+              <widget class="QPushButton" name="returnFromRoomsBtn">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1078,7 +1078,7 @@ background-color: #54525e;</string>
  </widget>
  <tabstops>
   <tabstop>exitButton</tabstop>
-  <tabstop>backButton_2</tabstop>
+  <tabstop>returnFromRoomsBtn</tabstop>
   <tabstop>exitButton_2</tabstop>
   <tabstop>inputTextEdit</tabstop>
   <tabstop>sendButton</tabstop>
