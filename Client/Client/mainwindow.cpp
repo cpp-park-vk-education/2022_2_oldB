@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "KeyboardResponsiveTextEdit.h"
 
 #include <QString>
 #include <QMessageBox>
@@ -68,10 +67,11 @@ void MainWindow::on_joinRoomButton_clicked()
     int portNum = roomPort.toInt(&correctConverted);
     if (correctConverted && portNum > FREE_PORT_NUM_START && portNum < FREE_PORT_NUM_END) {
         qDebug() << "SUCCESS! port = " << portNum << '\n';
+//        client.ConnectToChat(portNum);
 
     }
 
-//    client.ConnectToChat();
+
 //    ui->roomsList->currentItem()->text()
 }
 
