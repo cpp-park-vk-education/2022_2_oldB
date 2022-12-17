@@ -94,7 +94,7 @@ public:
     }
 
     void updateRoom(Room &room) {
-        std::string sql = "UPDATE rooms set name = " + room.name + " \
+        std::string sql = "UPDATE rooms set name = '" + room.name + "' \
         where id = " + std::to_string(room.id);
 
         pqxx::work W(*con);
@@ -104,7 +104,7 @@ public:
     }
 
     bool checkRoom(const std::string &name) const {
-        std::string sql = "SELECT * from rooms WHERE name = " + name;
+        std::string sql = "SELECT * from rooms WHERE name = '" + name + "'";
 
         pqxx::nontransaction N(*con);
 

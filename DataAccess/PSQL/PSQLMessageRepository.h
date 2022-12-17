@@ -98,7 +98,7 @@ public:
     }
 
     void updateMessage(Message &message) {
-        std::string sql = "UPDATE messages set text = " + message.text + " \
+        std::string sql = "UPDATE messages set text = '" + message.text + "' \
         where id = " + std::to_string(message.id);
 
         pqxx::work W(*con);
