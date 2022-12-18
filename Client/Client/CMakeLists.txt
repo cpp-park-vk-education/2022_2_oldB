@@ -19,6 +19,7 @@ set(SRC
         mainwindow.h
         mainwindow.ui
         Message.h
+        resource.qrc
         )
 
 

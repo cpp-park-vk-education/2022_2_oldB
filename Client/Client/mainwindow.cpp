@@ -20,11 +20,27 @@ MainWindow::MainWindow(QWidget *parent)
     ui->chatTextWidget->setReadOnly(true);
 
     setStyleSheet("color: #f0f0f0; background-color: #262626 ");
-    ;
+    QString const& image_path = ":/img/send-icon.png";
+    QPixmap pixmap(image_path);
+    QIcon ButtonIcon(pixmap);
+    ui->sendButton->setIcon(ButtonIcon);
+    ui->sendButton->setIconSize(ui->sendButton->rect().size() / 2);
+
+    QLineEdit * messageLine = MainWindow::findChild<QLineEdit * > ("inputTextEdit");
+
+    connect(messageLine, SIGNAL(returnPressed()), this, SLOT(inputTextEdit_returnPressed()));
 }
 
 MainWindow::~MainWindow() {
     delete ui;
+}
+
+void MainWindow::inputTextEdit_returnPressed()
+{
+    qDebug() << "ENTER PRESSED";
+
+
+
 }
 
 void MainWindow::on_startButton_clicked()

@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>img/send-icon.png</file>
+    </qresource>
+</RCC>

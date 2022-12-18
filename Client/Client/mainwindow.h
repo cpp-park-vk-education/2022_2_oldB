@@ -19,6 +19,8 @@ public:
 
 private slots:
 
+    void inputTextEdit_returnPressed();
+
 
     void on_startButton_clicked();
 
@@ -47,6 +49,7 @@ private slots:
     void on_returnFromRoomsBtn_clicked();
 
     void on_sendButton_clicked();
+
 
 private:
     void sendMessage();
