@@ -6,23 +6,23 @@
 #include <set>
 #include <utility>
 #include <boost/asio.hpp>
-#include "../../Client/Client/chat_message.hpp"
+#include "../../Client/Client/Message.h"
 
-#define MAIN_SERVER 2002
+#define MAIN_SERVER 2001
 #define RETURN_SERVER [2002, 2003, 2004]
 
 using boost::asio::ip::tcp;
 
 //----------------------------------------------------------------------
 
-typedef std::deque<ChatMessage> chat_message_queue;
+typedef std::deque<Message> chat_message_queue;
 
 //----------------------------------------------------------------------
 
 class ChatParticipant {
 public:
     virtual ~ChatParticipant() {}
-    virtual void deliver(const ChatMessage& message) = 0;
+    virtual void deliver(const Message& message) = 0;
 };
 
 typedef std::shared_ptr<ChatParticipant> chat_participant_ptr;
@@ -41,7 +41,7 @@ public:
         participants_.erase(participant);
     }
 
-    void deliver(const ChatMessage& message) {
+    void deliver(const Message& message) {
         recent_messages_.push_back(message);
         //db.add_messages();
 
@@ -69,11 +69,9 @@ public:
         do_read_header();                // начинаем читать его сообщения
     }
 
-    void deliver(const ChatMessage& message) {
+    void deliver(const Message& message) {
         bool write_in_progress = !write_messages_.empty();
         write_messages_.push_back(message);
-
-        //std::cout << message.data()[9] << message.data()[10] << message.data()[11] << message.data()[12] << message.data()[13] << message.data()[14] << message.data()[15] << std::endl;
 
         if (!write_in_progress)
             do_write();
@@ -82,10 +80,21 @@ public:
 private:
     void do_read_header() {  // читаем заголовок сообщения
         auto self(shared_from_this());
-        boost::asio::async_read(socket_, boost::asio::buffer(read_message_.data(), ChatMessage::header_length),
+        boost::asio::async_read(socket_, boost::asio::buffer(read_message_.data(), Message::header_length),
             [this, self](boost::system::error_code ec, std::size_t /*length*/)
             {
+                std::cout << !ec << std::endl;
+                std::cout << read_message_.decode_header() << std::endl;
                 if (!ec && read_message_.decode_header()) {
+                    std::cout << "qweqwe" << std::endl;
+                    //if (read_message_.get_type() == 0)
+                    //    std::cout << "reg" << std::endl;
+                    //else if (read_message_.get_type() == 1)
+                    //    std::cout << "avt" << std::endl;
+                    //else if (read_message_.get_type() == 2)
+                    //    std::cout << "con" << std::endl;
+                    //else
+                    //    std::cout << "wri" << std::endl;
                     do_read_body();
                 }
                 else
@@ -126,7 +135,7 @@ private:
 
     tcp::socket socket_;
     ChatRoom& room_;
-    ChatMessage read_message_;
+    Message read_message_;
     chat_message_queue write_messages_;
 };
 
@@ -135,6 +144,7 @@ private:
 class ChatServer {
 public:
     ChatServer(boost::asio::io_service& io_service, const tcp::endpoint& endpoint) : acceptor_(io_service, endpoint), socket_(io_service) {
+        std::cout << "1" << std::endl;
         do_accept();
     }
 
@@ -161,7 +171,7 @@ int main(int argc, char* argv[]) {
     try {
         boost::asio::io_service io_service;
 
-
+        std::cout << "2" << std::endl;
         //MAIN_SERVER
         tcp::endpoint ep(tcp::v4(), MAIN_SERVER);
         ChatServer servers(io_service, ep);

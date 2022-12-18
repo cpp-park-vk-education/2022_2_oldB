@@ -52,19 +52,7 @@ private:
             });
     }
 
-    void do_read_body() {
-        boost::asio::async_read(socket_, boost::asio::buffer(read_message_.inf(), read_message_.inf_length()),
-            [this](boost::system::error_code ec, std::size_t /*length*/)
-            {
-                if (!ec && read_message_.decode_text()) {
-                    std::cout << read_message_.get_username() << ": " << read_message_.get_body();  // выводим прочитанное сообщение на экран
-                    std::cout << "\n";
-                    do_read_header();                                                    // сразу же начинаем читать следующее, если оно пришло
-                }
-                else
-                    socket_.close();
-            });
-    }
+    void do_read_body();
 
     void do_write() {
         boost::asio::async_write(socket_,

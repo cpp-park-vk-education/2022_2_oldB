@@ -52,7 +52,6 @@ private:
     void sendMessage();
 
     Ui::MainWindow *ui;
-    Client client;
 
     void write(std::string &message);
 };

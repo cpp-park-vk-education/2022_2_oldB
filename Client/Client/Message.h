@@ -9,7 +9,7 @@
 class Message {
 public:
     enum { type_length = 1, lenght_length = 5, max_username_length = 20, max_body_length = 512, header_length = type_length + 2 * lenght_length };
-    enum { send_message = 0, check_password = 1 };
+    enum { registration = 0, authorization = 1, send_message = 2, check_password = 3 };
 
     Message()
         : type(0), username(""), body(""), body_length_(0), username_length_(0), message("") {}
@@ -44,7 +44,7 @@ public:
         return message + header_length;
     }
 
-    bool get_type() {
+    int get_type() {
         return type;
     }
 
@@ -115,7 +115,7 @@ public:
     }
 
 private:
-    bool type;
+    int type;
     std::string username;
     std::string body;
 
@@ -125,9 +125,13 @@ private:
 
 private:
     bool decode_message_type() {
-        if (message[0] == '0')
+        if (message[0] == 0)
+            type = registration;
+        else if (message[0] == 1)
+            type = authorization;
+        else if (message[0] == 2)
             type = send_message;
-        else if (message[0] == '1')
+        else if (message[0] == 3)
             type = check_password;
         else
             return false;
@@ -166,10 +170,14 @@ private:
     }
 
     void encode_message_type() {
-        if (type == send_message)
-            message[0] = '0';
+        if (type == registration)
+            message[0] = 0;
+        else if (type == authorization)
+            message[0] = 1;
+        else if (type == send_message)
+            message[0] = 2;
         else
-            message[0] = '1';
+            message[0] = 3;
     }
 
     void encode_lenght() {
