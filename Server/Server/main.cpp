@@ -34,17 +34,24 @@ class ChatRoom {
 public:
     void join(chat_participant_ptr participant) {  // пользователь добавляется в список пользователей комнаты
         participants_.insert(participant);
+
+        // DB add user to room
+
         for (auto message : recent_messages_)
             participant->deliver(message);
     }
 
     void leave(chat_participant_ptr participant) {
         participants_.erase(participant);
+
+        // DB del user from room
+
     }
 
     void deliver(const Message& message) {
         recent_messages_.push_back(message);
-        //db.add_messages();
+
+        //DB add messages
 
         while (recent_messages_.size() > max_recent_messages)
             recent_messages_.pop_front();
@@ -100,6 +107,7 @@ private:
             {
                 if (!ec && read_message_.decode_text()) {
                     if (read_message_.get_type() == Message::registration) {
+
                         //DB Add new user read_message_.username (username) and read_message_.body (password)
 
                         Message msg;
@@ -116,13 +124,16 @@ private:
                         do_write_sistem_msg(msg);
                     }
                     else if (read_message_.get_type() == Message::authorization) {
+
                         //DB Check user in db by read_message_.username (username) and read_message_.body (password)
 
                         Message msg;
                         msg.set_username(read_message_.get_username());
                         msg.set_type(Message::authorization);
                         if (1 /* if user in DB */) {
-                            // DB get users ports as std::vector<int>
+
+                            //DB get users ports as std::vector<int>
+
                             std::vector<int> ports = { 2001 };
                             msg.convert_ports_to_string(ports);
                         }
@@ -208,6 +219,10 @@ private:
 
 int main(int argc, char* argv[]) {
     try {
+		
+		//DB get all rooms
+		
+		
         boost::asio::io_service io_service;
 
         //MAIN_SERVER
