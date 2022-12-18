@@ -9,8 +9,8 @@
 #include "../../Client/Client/Message.h"
 
 #define MAIN_SERVER 2001
-#define ALL_CHAT_SERVERS {2002}
-#define SERVERS_COUNT 0
+#define ALL_CHAT_SERVERS {2002, 2003, 2004}
+#define SERVERS_COUNT 3
 
 using boost::asio::ip::tcp;
 
@@ -219,6 +219,10 @@ private:
 
 int main(int argc, char* argv[]) {
     try {
+		
+		//DB get all rooms
+		
+		
         boost::asio::io_service io_service;
 
         //MAIN_SERVER
