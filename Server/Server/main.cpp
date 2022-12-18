@@ -9,7 +9,8 @@
 #include "../../Client/Client/Message.h"
 
 #define MAIN_SERVER 2001
-#define RETURN_SERVER [2002, 2003, 2004]
+#define ALL_CHAT_SERVERS {2002, 2003, 2004}
+#define SERVERS_COUNT 3
 
 using boost::asio::ip::tcp;
 
@@ -62,7 +63,8 @@ private:
 
 class ChatSession : public ChatParticipant, public std::enable_shared_from_this<ChatSession> {  // взаимодействие с конкретным клиентов
 public:
-    ChatSession(tcp::socket socket, ChatRoom& room) : socket_(std::move(socket)), room_(room) {}
+    ChatSession(tcp::socket socket, ChatRoom& room) : socket_(std::move(socket)), room_(room) {
+    }
 
     void start() {
         room_.join(shared_from_this());  // добавляем его в комнату
@@ -83,18 +85,7 @@ private:
         boost::asio::async_read(socket_, boost::asio::buffer(read_message_.data(), Message::header_length),
             [this, self](boost::system::error_code ec, std::size_t /*length*/)
             {
-                std::cout << !ec << std::endl;
-                std::cout << read_message_.decode_header() << std::endl;
                 if (!ec && read_message_.decode_header()) {
-                    std::cout << "qweqwe" << std::endl;
-                    //if (read_message_.get_type() == 0)
-                    //    std::cout << "reg" << std::endl;
-                    //else if (read_message_.get_type() == 1)
-                    //    std::cout << "avt" << std::endl;
-                    //else if (read_message_.get_type() == 2)
-                    //    std::cout << "con" << std::endl;
-                    //else
-                    //    std::cout << "wri" << std::endl;
                     do_read_body();
                 }
                 else
@@ -108,7 +99,44 @@ private:
             [this, self](boost::system::error_code ec, std::size_t /*length*/)
             {
                 if (!ec && read_message_.decode_text()) {
-                    room_.deliver(read_message_);
+                    if (read_message_.get_type() == Message::registration) {
+                        //DB Add new user read_message_.username (username) and read_message_.body (password)
+
+                        Message msg;
+                        msg.set_username(read_message_.get_username());
+                        msg.set_type(Message::registration);
+                        if (1 /* if add complete */) {
+                            msg.set_body(std::to_string(true));
+                        }
+                        else {
+                            msg.set_body(std::to_string(false));
+                        }
+
+                        msg.encode();
+                        do_write_sistem_msg(msg);
+                    }
+                    else if (read_message_.get_type() == Message::authorization) {
+                        //DB Check user in db by read_message_.username (username) and read_message_.body (password)
+
+                        Message msg;
+                        msg.set_username(read_message_.get_username());
+                        msg.set_type(Message::authorization);
+                        if (1 /* if user in DB */) {
+                            // DB get users ports as std::vector<int>
+                            std::vector<int> ports = { 2001 };
+                            msg.convert_ports_to_string(ports);
+                        }
+                        else {
+                            msg.set_body(std::to_string(false));
+                        }
+
+                        msg.encode();
+                        do_write_sistem_msg(msg);
+                    }
+                    else if (read_message_.get_type() == Message::send_message) {
+                        room_.deliver(read_message_);
+                    }
+
                     do_read_header();
                 }
                 else
@@ -128,8 +156,20 @@ private:
                         do_write();
                     }
                 }
-                else
+                if (ec)
                     room_.leave(shared_from_this());
+            });
+    }
+
+    void do_write_sistem_msg(Message &msg) {  // возвращаем информацию одному клиенту
+        auto self(shared_from_this());
+        boost::asio::async_write(socket_,
+            boost::asio::buffer(msg.data(), msg.length()),
+            [this, self](boost::system::error_code ec, std::size_t /*length*/)
+            {
+                if (ec) {
+                    room_.leave(shared_from_this());
+                }
             });
     }
 
@@ -144,7 +184,6 @@ private:
 class ChatServer {
 public:
     ChatServer(boost::asio::io_service& io_service, const tcp::endpoint& endpoint) : acceptor_(io_service, endpoint), socket_(io_service) {
-        std::cout << "1" << std::endl;
         do_accept();
     }
 
@@ -171,10 +210,17 @@ int main(int argc, char* argv[]) {
     try {
         boost::asio::io_service io_service;
 
-        std::cout << "2" << std::endl;
         //MAIN_SERVER
         tcp::endpoint ep(tcp::v4(), MAIN_SERVER);
-        ChatServer servers(io_service, ep);
+        ChatServer main_servers(io_service, ep);
+
+
+        //int ports[SERVERS_COUNT] = ALL_CHAT_SERVERS;
+        //std::list<ChatServer> servers;
+        //for (int i = 1; i < SERVERS_COUNT; ++i) {
+            //tcp::endpoint endpoint(tcp::v4(), ports[i]);
+            //servers.emplace_back(io_service, endpoint);
+        //}
 
         io_service.run();  // удержание до завершения
     }

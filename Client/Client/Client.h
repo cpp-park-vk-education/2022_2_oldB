@@ -18,6 +18,9 @@ void СhatСlient::do_read_body() {
             if (!ec && read_message_.decode_text()) {
                 std::cout << read_message_.get_username() << ": " << read_message_.get_body();  // выводим прочитанное сообщение на экран
                 std::cout << "\n";
+
+                // вызов м-да, который выводит сообщения на экран
+
                 do_read_header();                                                    // сразу же начинаем читать следующее, если оно пришло
             }
             else
@@ -29,14 +32,14 @@ class Client {
 public:
     Client() : resolver(io_context) {}
     ~Client() {
-        if(connected_to_server) {
+        if (connected_to_server) {
             chat_client->close();
             execution_thread.join();
             delete chat_client;
         }
     }
 
-    bool Registration(std::string &username, std::string &password) {
+    bool Registration(std::string& username, std::string& password) {
         boost::asio::io_context io_context;
 
         tcp::socket socket(io_context);
@@ -52,12 +55,12 @@ public:
         boost::asio::read(socket, boost::asio::buffer(msg.inf(), msg.inf_length()));
         msg.decode_text();
 
-        if (msg.body_length())
+        if (msg.get_body()[0])
             return true;
         return false;
     }
 
-    bool Authorization(std::string &username, std::string &password) {
+    bool Authorization(std::string& username, std::string& password) {
         boost::asio::io_context io_context;
 
         tcp::socket socket(io_context);
@@ -73,18 +76,18 @@ public:
         boost::asio::read(socket, boost::asio::buffer(msg.inf(), msg.inf_length()));
         msg.decode_text();
 
+        if (msg.body_length() == 1 && msg.get_body()[0] == '0')
+            return false;
 
         ports.clear();
-        for (int i = 0; i < msg.get_body().size() / 4; i++) {
+        for (int i = 0; i < msg.get_body().size() / Message::lenght_length; i++) {
             char tmp[Message::lenght_length + 1] = "";
             for (int j = 0; j < Message::lenght_length; j++)
-                tmp[j] = msg.get_body()[i * 4 + j];
+                tmp[j] = msg.get_body()[i * Message::lenght_length + j];
 
-            ports[i] = std::atoi(tmp);
+            ports.push_back(std::atoi(tmp));
         }
 
-        if (!ports.size() && !msg.get_body()[0])
-            return false;
         return true;
     }
 
@@ -100,8 +103,8 @@ public:
     bool ConnectToChat(int port) {
         try {
             endpoints = resolver.resolve("127.0.0.1", std::to_string(port));
-            chat_client  = new СhatСlient(io_context, endpoints);
-            execution_thread = std::thread([this](){ io_context.run();});
+            chat_client = new СhatСlient(io_context, endpoints);
+            execution_thread = std::thread([this]() { io_context.run(); });
             connected_to_server = true;
 
             return true;
@@ -111,7 +114,7 @@ public:
         }
     }
 
-    bool DisconnectToChat(int port) {
+    bool DisconnectToChat() {
         if (connected_to_server == true) {
             chat_client->close();
             execution_thread.join();
@@ -123,8 +126,8 @@ public:
         return false;
     }
 
-    bool WriteMessage(Message &message) {
-        if(connected_to_server == true) {
+    bool WriteMessage(Message& message) {
+        if (connected_to_server == true) {
             chat_client->write(message);
             return true;
         }
@@ -133,13 +136,13 @@ public:
     }
 
 private:
-    std::string& Hashing(std::string &password);
+    std::string& Hashing(std::string& password);
 
 private:
     boost::asio::io_context io_context;
     tcp::resolver resolver;
     boost::asio::ip::basic_resolver_results<boost::asio::ip::tcp> endpoints;
-    СhatСlient *chat_client;
+    СhatСlient* chat_client;
     std::thread execution_thread;
     bool connected_to_server = false;
 
@@ -147,21 +150,34 @@ private:
     std::vector<int> ports;
 };
 
-int main(int argc, char* argv[]) {
-    try {
-        Client c;
-
-        std::string name = "fedor";
-        std::string txt = "msg";
-        Message msg(name, txt);
-
-        c.ConnectToChat(2001);
-        c.WriteMessage(msg);
-    }
-    catch (std::exception& e) {
-        std::cout << "Exception: " << e.what() << "\n";
-    }
-
-    return 0;
-}
-
+//int main(int argc, char* argv[]) {
+//    try {
+//        Client c;
+//
+//        std::string name = "fedor";
+//        std::string password = "ted12345";
+//        c.Authorization(name, password);
+//
+//
+//        std::vector<int> ports;
+//        c.GetUsersPorts(ports);
+//
+//
+//        c.ConnectToChat(ports[0]);
+//
+//
+//        std::string txt;
+//        while (std::cin >> txt)
+//        {
+//            Message msg(name, txt, Message::send_message);
+//            c.WriteMessage(msg);
+//        }
+//
+//        c.DisconnectToChat();
+//    }
+//    catch (std::exception& e) {
+//        std::cout << "Exception: " << e.what() << "\n";
+//    }
+//
+//    return 0;
+//}
