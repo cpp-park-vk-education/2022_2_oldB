@@ -9,8 +9,8 @@
 #include "../../Client/Client/Message.h"
 
 #define MAIN_SERVER 2001
-#define ALL_CHAT_SERVERS {2002, 2003, 2004}
-#define SERVERS_COUNT 3
+#define ALL_CHAT_SERVERS {2001, 2002, 2003, 2004, 2005}
+#define SERVERS_COUNT 5
 
 using boost::asio::ip::tcp;
 
@@ -226,16 +226,16 @@ int main(int argc, char* argv[]) {
         boost::asio::io_service io_service;
 
         //MAIN_SERVER
-        tcp::endpoint ep(tcp::v4(), MAIN_SERVER);
-        ChatServer main_servers(io_service, ep);
+        //tcp::endpoint ep(tcp::v4(), MAIN_SERVER);
+        //ChatServer main_servers(io_service, ep);
 
 
-        //int ports[SERVERS_COUNT] = ALL_CHAT_SERVERS;
-        //std::list<ChatServer> servers;
-        //for (int i = 1; i < SERVERS_COUNT; ++i) {
-            //tcp::endpoint endpoint(tcp::v4(), ports[i]);
-            //servers.emplace_back(io_service, endpoint);
-        //}
+        int ports[SERVERS_COUNT] = ALL_CHAT_SERVERS;
+        std::list<ChatServer> servers;
+        for (int i = 0; i < SERVERS_COUNT; ++i) {
+            tcp::endpoint endpoint(tcp::v4(), ports[i]);
+            servers.emplace_back(io_service, endpoint);
+        }
 
         io_service.run();  // удержание до завершения
     }
