@@ -12,6 +12,8 @@
 #define FREE_PORT_NUM_START 1024
 #define FREE_PORT_NUM_END 65535
 
+
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow) {
@@ -25,22 +27,15 @@ MainWindow::MainWindow(QWidget *parent)
     QIcon ButtonIcon(pixmap);
     ui->sendButton->setIcon(ButtonIcon);
     ui->sendButton->setIconSize(ui->sendButton->rect().size() / 2);
-
-    QLineEdit * messageLine = MainWindow::findChild<QLineEdit * > ("inputTextEdit");
-
-    connect(messageLine, SIGNAL(returnPressed()), this, SLOT(inputTextEdit_returnPressed()));
 }
 
 MainWindow::~MainWindow() {
     delete ui;
 }
 
-void MainWindow::inputTextEdit_returnPressed()
+void MainWindow::onEnterPressed()
 {
-    qDebug() << "ENTER PRESSED";
-
-
-
+    qDebug() << "ENTER PRESSED\n";
 }
 
 void MainWindow::on_startButton_clicked()
@@ -160,7 +155,9 @@ void MainWindow::sendMessage() {
         std::string message(ui->inputTextEdit->toPlainText().toStdString());
 
 //        client.WriteMessage(message); FIXME
+        qDebug() << "СООБЩЕНИЕ ОТПРАВЛЕНО";
         ui->inputTextEdit->clear();
+
     }
 }
 

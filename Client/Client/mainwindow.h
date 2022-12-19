@@ -2,7 +2,6 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-
 #include "Client.h"
 
 QT_BEGIN_NAMESPACE
@@ -19,7 +18,7 @@ public:
 
 private slots:
 
-    void inputTextEdit_returnPressed();
+    void onEnterPressed();
 
 
     void on_startButton_clicked();
@@ -58,4 +57,5 @@ private:
 
     void write(std::string &message);
 };
+
 #endif // MAINWINDOW_H
