@@ -11,22 +11,22 @@
 
 using boost::asio::ip::tcp;
 
-void СhatСlient::do_read_body() {
-    boost::asio::async_read(socket_, boost::asio::buffer(read_message_.inf(), read_message_.inf_length()),
-        [this](boost::system::error_code ec, std::size_t /*length*/)
-        {
-            if (!ec && read_message_.decode_text()) {
-                std::cout << read_message_.get_username() << ": " << read_message_.get_body();  // выводим прочитанное сообщение на экран
-                std::cout << "\n";
+//void СhatСlient::do_read_body() {
+//    boost::asio::async_read(socket_, boost::asio::buffer(read_message_.inf(), read_message_.inf_length()),
+//        [this](boost::system::error_code ec, std::size_t /*length*/)
+//        {
+//            if (!ec && read_message_.decode_text()) {
+//                std::cout << read_message_.get_username() << ": " << read_message_.get_body();  // выводим прочитанное сообщение на экран
+//                std::cout << "\n";
 
-                // вызов м-да, который выводит сообщения на экран
+//                // вызов м-да, который выводит сообщения на экран
 
-                do_read_header();                                                    // сразу же начинаем читать следующее, если оно пришло
-            }
-            else
-                socket_.close();
-        });
-}
+//                do_read_header();                                                    // сразу же начинаем читать следующее, если оно пришло
+//            }
+//            else
+//                socket_.close();
+//        });
+//}
 
 class Client {
 public:
@@ -88,6 +88,7 @@ public:
             ports.push_back(std::atoi(tmp));
         }
 
+        username = msg.get_username();
         return true;
     }
 
@@ -126,14 +127,15 @@ public:
         return false;
     }
 
-    bool WriteMessage(Message& message) {
-        if (connected_to_server == true) {
-            chat_client->write(message);
-            return true;
+    bool WriteMessage(std::string &message) {
+            Message msg(username, message);
+            if(connected_to_server == true) {
+                chat_client->write(msg);
+                return true;
+            }
+            else
+                return false;
         }
-        else
-            return false;
-    }
 
 private:
     std::string& Hashing(std::string& password);

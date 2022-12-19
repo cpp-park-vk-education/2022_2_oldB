@@ -36,7 +36,7 @@
        <string notr="true">background-color: #262626</string>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="page">
        <property name="autoFillBackground">
@@ -75,7 +75,7 @@
            <string notr="true"/>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>2</number>
           </property>
           <widget class="QWidget" name="page_1">
            <layout class="QGridLayout" name="gridLayout_2">
