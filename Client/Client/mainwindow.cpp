@@ -54,18 +54,24 @@ void MainWindow::on_loginButton_clicked()
     std::string strLogin = login.toStdString();
     std::string strPassword = password.toStdString();
 
-//    if (client.Authorization(strLogin, strPassword)) { // to do vector<int> список чатов FIXME
+    if (client.Authorization(strLogin, strPassword)) {
+        std::vector<int> userPorts;
+        if (client.GetUsersPorts(userPorts)) {
+            qDebug() << "Нет портов";
+        }
 
-//    }
+        QString strPort;
+        for (auto port : userPorts) {
+            strPort = QString::number(port);
+            ui->roomsList->addItem(strPort);
+        }
 
-    std::vector<QString> ports = {"6666", "8888"};
-
-    for (auto port : ports) {
-        ui->roomsList->addItem(port);
+        ui->stackedWidget_2->setCurrentIndex(3);
+    }
+    else {
+        qDebug() << "ошибка авторизации";
     }
 
-//    client.Authorization()
-    ui->stackedWidget_2->setCurrentIndex(3);
 }
 
 
@@ -76,7 +82,7 @@ void MainWindow::on_joinRoomButton_clicked()
     int portNum = roomPort.toInt(&correctConverted);
     if (correctConverted && portNum > FREE_PORT_NUM_START && portNum < FREE_PORT_NUM_END) {
         qDebug() << "SUCCESS! port = " << portNum << '\n';
-//        client.ConnectToChat(portNum); // CONNECTING FIXME
+        client.ConnectToChat(portNum); // CONNECTING FIXME
 
         ui->stackedWidget->setCurrentIndex(1);
     }
@@ -154,7 +160,7 @@ void MainWindow::sendMessage() {
     if (!ui->inputTextEdit->toPlainText().isEmpty()) {
         std::string message(ui->inputTextEdit->toPlainText().toStdString());
 
-//        client.WriteMessage(message); FIXME
+        client.WriteMessage(message); //FIXME
         qDebug() << "СООБЩЕНИЕ ОТПРАВЛЕНО";
         ui->inputTextEdit->clear();
 

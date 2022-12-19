@@ -88,6 +88,7 @@ public:
             ports.push_back(std::atoi(tmp));
         }
 
+        username = msg.get_username();
         return true;
     }
 
@@ -126,14 +127,15 @@ public:
         return false;
     }
 
-    bool WriteMessage(Message& message) {
-        if (connected_to_server == true) {
-            chat_client->write(message);
-            return true;
+    bool WriteMessage(std::string &message) {
+            Message msg(username, message);
+            if(connected_to_server == true) {
+                chat_client->write(msg);
+                return true;
+            }
+            else
+                return false;
         }
-        else
-            return false;
-    }
 
 private:
     std::string& Hashing(std::string& password);
