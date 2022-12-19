@@ -46,7 +46,7 @@ public:
         tcp::resolver resolver(io_context);
         boost::asio::connect(socket, resolver.resolve("127.0.0.1", "2001"));
 
-        Message msg(username, password, Message::registration);
+        Message msg(username, Hashing(password), Message::registration);
         msg.encode();
         boost::asio::write(socket, boost::asio::buffer(msg.data(), msg.length()));
 
@@ -67,7 +67,7 @@ public:
         tcp::resolver resolver(io_context);
         boost::asio::connect(socket, resolver.resolve("127.0.0.1", "2001"));
 
-        Message msg(username, password, Message::authorization);
+        Message msg(username, Hashing(password), Message::authorization);
         msg.encode();
         boost::asio::write(socket, boost::asio::buffer(msg.data(), msg.length()));
 
@@ -138,7 +138,9 @@ public:
         }
 
 private:
-    std::string& Hashing(std::string& password);
+    std::string& Hashing(std::string& password) {
+        return password;
+    }
 
 private:
     boost::asio::io_context io_context;
