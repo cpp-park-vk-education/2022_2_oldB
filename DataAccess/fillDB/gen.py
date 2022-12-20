@@ -26,9 +26,11 @@ def generate_room():
     faker = Faker()
     f = open('rooms.csv', 'w')
     room_id = [i for i in range(1, N+1)]
+    port = 2000
     for i in range(N):
-        line = "{0},{1}\n".format(room_id[i],
-                                  faker.word())
+        line = "{0},{1},{2}\n".format(room_id[i],
+                                  faker.word(),
+                                  port + i + 1)
         f.write(line)
     f.close()
 
