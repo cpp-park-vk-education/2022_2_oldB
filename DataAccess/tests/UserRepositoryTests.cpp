@@ -1,24 +1,28 @@
 #include <gtest/gtest.h>
 
 #include "User.h"
+#include "Room.h"
 #include "PSQLUserRepository.h"
 
 std::string conString = "hostaddr=127.0.0.1 port=5432 dbname=chatDB user=postgres password=123";
 
 TEST(UserTest, getUserById) {
     PSQLUserRepository repUser(conString);
-    User user = repUser.getUserById(1);
+    User user1(2000, "karina", "anohina", "karinaaa", "qwerty");
+    repUser.addUser(user1);
+    User user = repUser.getUserById(2000);
 
-    ASSERT_EQ(user.login, "carrmark");
-    ASSERT_EQ(user.password, "Uj7MKt&(0_");
+    ASSERT_EQ(user.login, "karinaaa");
+    ASSERT_EQ(user.password, "qwerty");
+    repUser.deleteUser(user1);
 }
 
 TEST(UserTest, getUsersOfRoom) {
     PSQLUserRepository repUser(conString);
-    Room room(5, "form");
+    Room room(3, "scientist", 2003);
     std::vector<User> users = repUser.getUsersOfRoom(room);
-    ASSERT_EQ(users[0].login, "michaelgarcia");
-    ASSERT_EQ(users[1].login, "johnknight");
+    ASSERT_EQ(users[0].login, "michael31");
+    ASSERT_EQ(users[1].login, "adamsjames");
 }
 
 TEST(UserTest, addUser) {
