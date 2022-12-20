@@ -6,6 +6,7 @@
 #include <string>
 #include <pqxx/pqxx>
 
+#include "../DBConnection.h"
 #include "User.h"
 #include "Room.h"
 #include "Message.h"
@@ -13,23 +14,14 @@
 class PSQLMessageRepository {
 public:
     PSQLMessageRepository();
-    PSQLMessageRepository(std::string conString) {
-        con = std::make_shared<pqxx::connection>(conString);
-
-        if ((*con).is_open())
-            std::cout << "Opened database successfully: " << (*con).dbname() << std::endl;
-        else
-            std::cout << "Can't open database" << std::endl;
-    }
-
-    ~PSQLMessageRepository() {
-        //con->disconnect();
+    PSQLMessageRepository(DBConnection conn) {
+        con = std::make_shared<DBConnection>(conn);
     }
 
     std::vector<Message> getAllMessages() {
         std::string sql = "SELECT * from messages";
 
-        pqxx::nontransaction N(*con);
+        pqxx::nontransaction N(*(con->getCon()));
 
         pqxx::result res(N.exec(sql));
 
@@ -46,7 +38,7 @@ public:
     Message getMessageById(int id) const {
         std::string sql = "SELECT * from messages WHERE id = " + std::to_string(id);
 
-        pqxx::nontransaction N(*con);
+        pqxx::nontransaction N(*(con->getCon()));
 
         pqxx::result res(N.exec(sql));
 
@@ -60,7 +52,7 @@ public:
         std::string sql = "select * from messages \
         where user_id = " + std::to_string(user.id);
 
-        pqxx::nontransaction N(*con);
+        pqxx::nontransaction N(*(con->getCon()));
 
         pqxx::result res(N.exec(sql));
 
@@ -82,7 +74,7 @@ public:
         sql << message.id << ',' << '\'' << message.text << '\'' 
         << ',' << message.user_id << ',' << message.room_id << ");";
 
-        pqxx::work W(*con);
+        pqxx::work W(*(con->getCon()));
         W.exec(sql.str());
         W.commit();
         std::cout << "Records created successfully\n";
@@ -91,7 +83,7 @@ public:
     void deleteMessage(Message message) {
         std::string sql = "DELETE from messages where id = " + std::to_string(message.id);
 
-        pqxx::work W(*con);
+        pqxx::work W(*(con->getCon()));
         W.exec(sql);
         W.commit();
         std::cout << "Records deleted successfully" << std::endl;
@@ -101,7 +93,7 @@ public:
         std::string sql = "UPDATE messages set text = '" + message.text + "' \
         where id = " + std::to_string(message.id);
 
-        pqxx::work W(*con);
+        pqxx::work W(*(con->getCon()));
         W.exec(sql);
         W.commit();
         std::cout << "Records updated successfully" << std::endl;
@@ -117,12 +109,12 @@ public:
           "VALUES (";
         sql << id << ',' << '\'' << '\'' << ',' << user.id << ',' << room.id << ");";
 
-        pqxx::work W(*con);
+        pqxx::work W(*(con->getCon()));
         W.exec(sql.str());
         W.commit();
         std::cout << "Records created successfully\n";
     }
 
 private:
-    std::shared_ptr<pqxx::connection> con;
+    std::shared_ptr<DBConnection> con;
 };
