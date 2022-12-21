@@ -36,7 +36,7 @@
        <string notr="true">background-color: #262626</string>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="page">
        <property name="autoFillBackground">
@@ -654,11 +654,6 @@ border-top-left-radius: 10px;
 border-top-right-radius: 10px;
 background-color: #54525e;</string>
             </property>
-            <item>
-             <property name="text">
-              <string>7777</string>
-             </property>
-            </item>
            </widget>
            <widget class="QLabel" name="label">
             <property name="geometry">

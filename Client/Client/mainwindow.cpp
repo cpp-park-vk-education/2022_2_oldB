@@ -16,7 +16,7 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow) {
+    , ui(new Ui::MainWindow), client(ui) {
     ui->setupUi(this);
     ui->inputTextEdit->setPlaceholderText("Type here");
     ui->chatTextArea->setReadOnly(true);
@@ -27,6 +27,8 @@ MainWindow::MainWindow(QWidget *parent)
     QIcon ButtonIcon(pixmap);
     ui->sendButton->setIcon(ButtonIcon);
     ui->sendButton->setIconSize(ui->sendButton->rect().size() / 2);
+
+    Client client(this->ui);
 }
 
 MainWindow::~MainWindow() {
@@ -57,7 +59,7 @@ void MainWindow::on_loginButton_clicked()
     if (client.Authorization(strLogin, strPassword)) {
         std::vector<int> userPorts;
         if (client.GetUsersPorts(userPorts)) {
-            qDebug() << "Нет портов";
+            qDebug() << "Порты считаны";
         }
 
         QString strPort;
@@ -161,7 +163,8 @@ void MainWindow::sendMessage() {
         std::string message(ui->inputTextEdit->toPlainText().toStdString());
 
         client.WriteMessage(message); //FIXME
-        qDebug() << "СООБЩЕНИЕ ОТПРАВЛЕНО";
+        qDebug() << "сообщение отправлено";
+        qDebug() << QString::fromStdString(message);
         ui->inputTextEdit->clear();
 
     }
@@ -175,12 +178,13 @@ void СhatСlient::do_read_body() {
     boost::asio::async_read(socket_, boost::asio::buffer(read_message_.inf(), read_message_.inf_length()),
         [this](boost::system::error_code ec, std::size_t /*length*/)
         {
+            qDebug() << "заходит улитка в бар";
             if (!ec && read_message_.decode_text()) {
-
-                MainWindow::updateChat(read_message_.get_username(), read_message_.get_body());
 
                 std::cout << read_message_.get_username() << ": " << read_message_.get_body();  // выводим прочитанное сообщение на экран
                 std::cout << "\n";
+                qDebug() << QString::fromStdString(read_message_.get_username() + ": " + read_message_.get_body());
+                ui_->chatTextArea->appendPlainText(QString::fromStdString(read_message_.get_username() + ": " + read_message_.get_body()));
                 do_read_header();                                                    // сразу же начинаем читать следующее, если оно пришло
             }
             else

@@ -9,6 +9,7 @@
 #include "Message.h"
 #include "ChatClient.h"
 #include "mainwindow.h"
+#include "ui_mainwindow.h"
 
 
 using boost::asio::ip::tcp;
@@ -32,7 +33,7 @@ using boost::asio::ip::tcp;
 
 class Client {
 public:
-    Client() : resolver(io_context) {}
+    Client(Ui::MainWindow * ui) : resolver(io_context), ui_(ui) {}
     ~Client() {
         if (connected_to_server) {
             chat_client->close();
@@ -106,7 +107,7 @@ public:
     bool ConnectToChat(int port) {
         try {
             endpoints = resolver.resolve("127.0.0.1", std::to_string(port));
-            chat_client = new СhatСlient(io_context, endpoints, this->ui);
+            chat_client = new СhatСlient(io_context, endpoints, this->ui_);
             execution_thread = std::thread([this]() { io_context.run(); });
             connected_to_server = true;
 
@@ -152,6 +153,8 @@ private:
 
     std::string username;
     std::vector<int> ports;
+
+    Ui::MainWindow * ui_;
 };
 
 //int main(int argc, char* argv[]) {

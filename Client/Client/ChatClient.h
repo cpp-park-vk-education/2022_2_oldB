@@ -5,6 +5,7 @@
 #include <boost/asio.hpp>
 #include "Message.h"
 #include "mainwindow.h"
+#include "ui_mainwindow.h"
 
 
 using boost::asio::ip::tcp;
@@ -13,10 +14,11 @@ typedef std::deque<Message> chat_message_queue;
 
 class СhatСlient {
 public:
-    СhatСlient(boost::asio::io_service& io_service, tcp::resolver::iterator ep_iter)
+    СhatСlient(boost::asio::io_service& io_service, tcp::resolver::iterator ep_iter, Ui::MainWindow * ui)
         :
         io_service_(io_service),
-        socket_(io_service) {
+        socket_(io_service),
+        ui_(ui) {
         do_connect(ep_iter);  // подключаем пользователя к серверу
     }
 
