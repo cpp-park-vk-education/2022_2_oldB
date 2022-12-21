@@ -15,6 +15,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void updateChat(std::string &username, std::string &msg_body);
 
 private slots:
 
@@ -51,6 +52,7 @@ private slots:
 
 
 private:
+
     void sendMessage();
 
     Ui::MainWindow *ui;

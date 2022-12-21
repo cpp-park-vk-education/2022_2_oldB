@@ -8,6 +8,8 @@
 
 #include "Message.h"
 #include "ChatClient.h"
+#include "mainwindow.h"
+
 
 using boost::asio::ip::tcp;
 
@@ -104,7 +106,7 @@ public:
     bool ConnectToChat(int port) {
         try {
             endpoints = resolver.resolve("127.0.0.1", std::to_string(port));
-            chat_client = new СhatСlient(io_context, endpoints);
+            chat_client = new СhatСlient(io_context, endpoints, this->ui);
             execution_thread = std::thread([this]() { io_context.run(); });
             connected_to_server = true;
 

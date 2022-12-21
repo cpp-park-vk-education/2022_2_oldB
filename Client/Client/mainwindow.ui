@@ -75,7 +75,7 @@
            <string notr="true"/>
           </property>
           <property name="currentIndex">
-           <number>2</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="page_1">
            <layout class="QGridLayout" name="gridLayout_2">
@@ -1042,7 +1042,7 @@ font: 15pt;
            <number>6</number>
           </property>
           <item row="0" column="0">
-           <widget class="QPlainTextEdit" name="chatTextWidget">
+           <widget class="QPlainTextEdit" name="chatTextArea">
             <property name="styleSheet">
              <string notr="true">border: 1px solid #8aecff; border-radius: 10px;
 background-color: #54525e;</string>
@@ -1083,7 +1083,7 @@ background-color: #54525e;</string>
   <tabstop>inputTextEdit</tabstop>
   <tabstop>sendButton</tabstop>
   <tabstop>userlistWidget</tabstop>
-  <tabstop>chatTextWidget</tabstop>
+  <tabstop>chatTextArea</tabstop>
   <tabstop>leaveLobbyButton</tabstop>
   <tabstop>exitLobbyButton</tabstop>
  </tabstops>

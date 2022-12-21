@@ -4,6 +4,8 @@
 #include <thread>
 #include <boost/asio.hpp>
 #include "Message.h"
+#include "mainwindow.h"
+
 
 using boost::asio::ip::tcp;
 
@@ -11,7 +13,10 @@ typedef std::deque<Message> chat_message_queue;
 
 class СhatСlient {
 public:
-    СhatСlient(boost::asio::io_service& io_service, tcp::resolver::iterator ep_iter) : io_service_(io_service), socket_(io_service) {
+    СhatСlient(boost::asio::io_service& io_service, tcp::resolver::iterator ep_iter)
+        :
+        io_service_(io_service),
+        socket_(io_service) {
         do_connect(ep_iter);  // подключаем пользователя к серверу
     }
 
@@ -30,6 +35,11 @@ public:
     void close() {
         io_service_.post([this]() { socket_.close(); });   // задание на закрытие сокета добавляется в очередь сервиса
     }
+
+//signals:
+//    void messageReceived(std::string &usename, std::string &msg_body);
+
+
 
 private:
     void do_connect(tcp::resolver::iterator ep_iter) {
@@ -74,4 +84,5 @@ private:
     tcp::socket socket_;
     Message read_message_;
     chat_message_queue write_messages_;  // очередь из сообщений для определенного сервера (одна на всех клиентов)
+    Ui::MainWindow * ui_;
 };
