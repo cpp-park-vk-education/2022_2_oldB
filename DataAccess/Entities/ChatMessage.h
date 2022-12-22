@@ -2,7 +2,7 @@
 
 #include <string>
 
-class Message {
+class ChatMessage {
 public:
     int id;
     std::string text;
@@ -11,7 +11,7 @@ public:
     int user_id;
     int room_id;
 
-    Message() {}
-    Message(int id, std::string text, int user_id, int room_id)
+    ChatMessage() {}
+    ChatMessage(int id, std::string text, int user_id, int room_id)
     : id(id), text(text), user_id(user_id), room_id(room_id) {}
 };

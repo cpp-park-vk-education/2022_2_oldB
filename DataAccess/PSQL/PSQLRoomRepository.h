@@ -45,6 +45,18 @@ public:
         return room;
     }
 
+    Room getRoomByPort(int port) const {
+        std::string sql = "SELECT * from rooms WHERE port = " + std::to_string(port);
+
+        pqxx::nontransaction N(*(con->getCon()));
+
+        pqxx::result res(N.exec(sql));
+
+        Room room(res[0][0].as<int>(), res[0][1].as<std::string>(), res[0][2].as<int>());
+
+        return room;
+    }
+
     std::vector<Room> getRoomsByUser(User user) const {
         std::string sql = "select r \
         from rooms r join messages m  on r.id = m.room_id  join users u on u.id = m.user_id \
