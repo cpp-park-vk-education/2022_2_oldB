@@ -7,9 +7,9 @@
 #include <pqxx/pqxx>
 
 #include "../DBConnection.h"
-#include "User.h"
-#include "Room.h"
-#include "ChatMessage.h"
+#include "../Entities/User.h"
+#include "../Entities/Room.h"
+#include "../Entities/ChatMessage.h"
 
 class PSQLMessageRepository {
 public:

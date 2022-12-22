@@ -9,10 +9,10 @@
 
 #include "../../Client/Client/Message.h"
 
-#include "DBConnection.h"
-#include "PSQLUserRepository.h"
-#include "PSQLRoomRepository.h"
-#include "PSQLMessageRepository.h"
+#include "../../DataAccess/DBConnection.h"
+#include "../../DataAccess/PSQL/PSQLUserRepository.h"
+#include "../../DataAccess/PSQL/PSQLRoomRepository.h"
+#include "../../DataAccess/PSQL/PSQLMessageRepository.h"
 
 
 #define MAIN_SERVER 2001
@@ -27,7 +27,7 @@ typedef std::deque<Message> chat_message_queue;
 
 //----------------------------------------------------------------------
 
-std::string conString = "hostaddr=127.0.0.1 port=5432 dbname=chatDB user=postgres password=123";
+std::string conString = "hostaddr=127.0.0.1 port=5432 dbname=chatDB user=postgres password=fedyk228";
 DBConnection con(conString);
 PSQLUserRepository repUser(con);
 PSQLRoomRepository repRoom(con);
@@ -211,18 +211,6 @@ private:
                 }
                 if (ec)
                     room_.leave(shared_from_this());
-            });
-    }
-
-    void do_write_sistem_msg(Message &msg) {  // возвращаем информацию одному клиенту
-        auto self(shared_from_this());
-        boost::asio::async_write(socket_,
-            boost::asio::buffer(msg.data(), msg.length()),
-            [this, self](boost::system::error_code ec, std::size_t /*length*/)
-            {
-                if (ec) {
-                    room_.leave(shared_from_this());
-                }
             });
     }
 

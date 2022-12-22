@@ -7,8 +7,8 @@
 #include <pqxx/pqxx>
 
 #include "../DBConnection.h"
-#include "User.h"
-#include "Room.h"
+#include "../Entities/User.h"
+#include "../Entities/Room.h"
 
 class PSQLRoomRepository {
 public:
