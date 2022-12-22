@@ -24,7 +24,7 @@ class ChatParticipant {
 public:
     virtual ~ChatParticipant() {}
     virtual void deliver(const Message& message) = 0;
-    virtual std::string get_username();
+    virtual std::string get_username() = 0;
 };
 
 typedef std::shared_ptr<ChatParticipant> chat_participant_ptr;
@@ -245,7 +245,7 @@ int main(int argc, char* argv[]) {
         std::list<ChatServer> servers;
         for (int i = 0; i < SERVERS_COUNT; ++i) {
             tcp::endpoint endpoint(tcp::v4(), ports[i]);
-            servers.emplace_back(io_service, endpoint);
+            servers.emplace_back(io_service, endpoint, ports[i]);
         }
 
         io_service.run();  // удержание до завершения
