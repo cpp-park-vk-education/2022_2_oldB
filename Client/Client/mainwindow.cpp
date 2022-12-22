@@ -16,7 +16,7 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow) {
+    , ui(new Ui::MainWindow), client(ui) {
     ui->setupUi(this);
     ui->inputTextEdit->setPlaceholderText("Type here");
     ui->chatTextWidget->setReadOnly(true);
@@ -167,13 +167,18 @@ void MainWindow::sendMessage() {
     }
 }
 
-void СhatСlient::do_read_body() {
+void ChatClient::do_read_body() {
     boost::asio::async_read(socket_, boost::asio::buffer(read_message_.inf(), read_message_.inf_length()),
         [this](boost::system::error_code ec, std::size_t /*length*/)
         {
             if (!ec && read_message_.decode_text()) {
                 std::cout << read_message_.get_username() << ": " << read_message_.get_body();  // выводим прочитанное сообщение на экран
                 std::cout << "\n";
+
+                qDebug() << "СООБЩЕНИЕ ghbikj";
+
+                // вызов м-да, который выводит сообщения на экран
+
                 do_read_header();                                                    // сразу же начинаем читать следующее, если оно пришло
             }
             else

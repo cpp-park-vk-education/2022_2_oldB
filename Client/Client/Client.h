@@ -9,28 +9,13 @@
 #include "Message.h"
 #include "ChatClient.h"
 
+#include "ui_mainwindow.h"
+
 using boost::asio::ip::tcp;
-
-//void СhatСlient::do_read_body() {
-//    boost::asio::async_read(socket_, boost::asio::buffer(read_message_.inf(), read_message_.inf_length()),
-//        [this](boost::system::error_code ec, std::size_t /*length*/)
-//        {
-//            if (!ec && read_message_.decode_text()) {
-//                std::cout << read_message_.get_username() << ": " << read_message_.get_body();  // выводим прочитанное сообщение на экран
-//                std::cout << "\n";
-
-//                // вызов м-да, который выводит сообщения на экран
-
-//                do_read_header();                                                    // сразу же начинаем читать следующее, если оно пришло
-//            }
-//            else
-//                socket_.close();
-//        });
-//}
 
 class Client {
 public:
-    Client() : resolver(io_context) {}
+    Client(Ui::MainWindow *_ui) : resolver(io_context), ui(_ui) {}
     ~Client() {
         if (connected_to_server) {
             chat_client->close();
@@ -88,7 +73,7 @@ public:
             ports.push_back(std::atoi(tmp));
         }
 
-        username = msg.get_username();
+        this->username = msg.get_username();
         return true;
     }
 
@@ -104,7 +89,7 @@ public:
     bool ConnectToChat(int port) {
         try {
             endpoints = resolver.resolve("127.0.0.1", std::to_string(port));
-            chat_client = new СhatСlient(io_context, endpoints);
+            chat_client = new ChatClient(io_context, endpoints, ui);
             execution_thread = std::thread([this]() { io_context.run(); });
             connected_to_server = true;
 
@@ -146,12 +131,13 @@ private:
     boost::asio::io_context io_context;
     tcp::resolver resolver;
     boost::asio::ip::basic_resolver_results<boost::asio::ip::tcp> endpoints;
-    СhatСlient* chat_client;
+    ChatClient* chat_client;
     std::thread execution_thread;
     bool connected_to_server = false;
 
     std::string username;
     std::vector<int> ports;
+    Ui::MainWindow *ui;
 };
 
 //int main(int argc, char* argv[]) {
@@ -173,8 +159,7 @@ private:
 //        std::string txt;
 //        while (std::cin >> txt)
 //        {
-//            Message msg(name, txt, Message::send_message);
-//            c.WriteMessage(msg);
+//            c.WriteMessage(txt);
 //        }
 //
 //        c.DisconnectToChat();
