@@ -5,15 +5,16 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <vector>
 
 class Message {
 public:
     enum { type_length = 1, lenght_length = 5, max_username_length = 20, max_body_length = 512, header_length = type_length + 2 * lenght_length };
-    enum { send_message = 0, check_password = 1 };
+    enum { registration = 0, authorization = 1, send_message = 2 };
 
     Message()
-        : type(0), username(""), body(""), body_length_(0), username_length_(0), message("") {}
-    Message(std::string& _username, std::string& _body, bool _type = send_message)
+        : type(send_message), username(""), body(""), body_length_(0), username_length_(0), message("") {}
+    Message(std::string& _username, std::string& _body, int _type = send_message)
         : type(_type), username(_username), body(_body), body_length_(0), username_length_(0), message("") {
         encode();
     }
@@ -44,7 +45,7 @@ public:
         return message + header_length;
     }
 
-    bool get_type() {
+    int get_type() {
         return type;
     }
 
@@ -72,7 +73,7 @@ public:
         return username_length_;
     }
 
-    void set_type(const bool type) {
+    void set_type(const int type) {
         this->type = type;
     }
 
@@ -114,8 +115,24 @@ public:
         encode_inf();
     }
 
+    void convert_ports_to_string(std::vector<int>& ports) {
+        std::string res;
+        res.resize(lenght_length * ports.size());
+        for (int i = 0; i < ports.size(); i++) {
+            size_t t = 10;
+            int tmp = ports[i];
+            for (int j = lenght_length - 1; j >= 0; j--) {
+                res[i * 4 + j] = std::to_string(tmp % t)[0];
+                tmp -= tmp % t;
+                t *= 10;
+            }
+        }
+
+        body = res;
+    }
+
 private:
-    bool type;
+    int type;
     std::string username;
     std::string body;
 
@@ -126,9 +143,11 @@ private:
 private:
     bool decode_message_type() {
         if (message[0] == '0')
-            type = send_message;
+            type = registration;
         else if (message[0] == '1')
-            type = check_password;
+            type = authorization;
+        else if (message[0] == '2')
+            type = send_message;
         else
             return false;
 
@@ -166,10 +185,12 @@ private:
     }
 
     void encode_message_type() {
-        if (type == send_message)
+        if (type == registration)
             message[0] = '0';
-        else
+        else if (type == authorization)
             message[0] = '1';
+        else if (type == send_message)
+            message[0] = '2';
     }
 
     void encode_lenght() {
