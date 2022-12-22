@@ -49,7 +49,7 @@ void MainWindow::on_loginButton_clicked()
     auto const login(ui->loginLine->text());
     auto const password(ui->passwordLine->text());
 
-    qDebug() << "LOGIN = " << login << "   PASS = " <<  password << '\n';
+    qDebug() << "login =" << login << "  pass =" <<  password << '\n';
 
     std::string strLogin = login.toStdString();
     std::string strPassword = password.toStdString();
@@ -57,7 +57,7 @@ void MainWindow::on_loginButton_clicked()
     if (client.Authorization(strLogin, strPassword)) {
         std::vector<int> userPorts;
         if (client.GetUsersPorts(userPorts)) {
-            qDebug() << "Нет портов";
+            qDebug() << "Порты считаны";
         }
 
         QString strPort;
@@ -109,7 +109,7 @@ void MainWindow::on_backButton_4_clicked()
 
 void MainWindow::on_backButton_8_clicked()
 {
-    ui->stackedWidget_2->setCurrentIndex(2);
+    ui->stackedWidget_2->setCurrentIndex(0);
 }
 
 
@@ -141,7 +141,31 @@ void MainWindow::on_createNewAccBtn_clicked()
 
 void MainWindow::on_createAccBtn_clicked()
 {
-    ui->stackedWidget_2->setCurrentIndex(3);
+    auto const login(ui->newLoginLine->text());
+    auto const password(ui->newPassLine->text());
+
+    qDebug() << "new_login =" << login << "   new_pass =" <<  password << '\n';
+
+    std::string strLogin = login.toStdString();
+    std::string strPassword = password.toStdString();
+
+    if (client.Registration(strLogin, strPassword)) {
+        std::vector<int> userPorts;
+        if (client.GetUsersPorts(userPorts)) {
+            qDebug() << "Порты считаны";
+        }
+
+        QString strPort;
+        for (auto port : userPorts) {
+            strPort = QString::number(port);
+            ui->roomsList->addItem(strPort);
+        }
+
+        ui->stackedWidget_2->setCurrentIndex(1);
+    }
+    else {
+        qDebug() << "ошибка регистрации";
+    }
 }
 
 
@@ -161,7 +185,7 @@ void MainWindow::sendMessage() {
         std::string message(ui->inputTextEdit->toPlainText().toStdString());
 
         client.WriteMessage(message); //FIXME
-        qDebug() << "СООБЩЕНИЕ ОТПРАВЛЕНО";
+        qDebug() << "Сообщение отправлено!";
         ui->inputTextEdit->clear();
 
     }
@@ -171,14 +195,11 @@ void ChatClient::do_read_body() {
     boost::asio::async_read(socket_, boost::asio::buffer(read_message_.inf(), read_message_.inf_length()),
         [this](boost::system::error_code ec, std::size_t /*length*/)
         {
-            if (!ec && read_message_.decode_text()) {
-                std::cout << read_message_.get_username() << ": " << read_message_.get_body();  // выводим прочитанное сообщение на экран
-                std::cout << "\n";
-
-                qDebug() << "СООБЩЕНИЕ ghbikj";
+            if (!ec && read_message_.decode_text()) {                
+                qDebug() << "заходит улитка в бар";
 
                 // вызов м-да, который выводит сообщения на экран
-
+                ui->chatTextWidget->appendPlainText(QString::fromStdString(read_message_.get_username() + ": " + read_message_.get_body()));
                 do_read_header();                                                    // сразу же начинаем читать следующее, если оно пришло
             }
             else
