@@ -6,7 +6,9 @@
 #include <set>
 #include <utility>
 #include <boost/asio.hpp>
+
 #include "../../Client/Client/Message.h"
+
 #include "DBConnection.h"
 #include "PSQLUserRepository.h"
 #include "PSQLRoomRepository.h"
@@ -115,8 +117,8 @@ public:
     }
 
     std::string get_username() {
-            return cur_username;
-        }
+        return cur_username;
+    }
 
 private:
     void do_read_header() {  // читаем заголовок сообщения
@@ -224,6 +226,18 @@ private:
             });
     }
 
+    void do_write_sistem_msg(Message &msg) {  // возвращаем информацию одному клиенту
+        auto self(shared_from_this());
+        boost::asio::async_write(socket_,
+            boost::asio::buffer(msg.data(), msg.length()),
+            [this, self](boost::system::error_code ec, std::size_t /*length*/)
+            {
+                if (ec) {
+                    room_.leave(shared_from_this());
+                }
+            });
+    }
+
     tcp::socket socket_;
     ChatRoom& room_;
     Message read_message_;
@@ -262,7 +276,6 @@ private:
 
 int main(int argc, char* argv[]) {
     try {
-
         //DB get all rooms
         std::vector<Room> rooms = repRoom.getAllRooms();
 
@@ -271,7 +284,6 @@ int main(int argc, char* argv[]) {
         //MAIN_SERVER
         //tcp::endpoint ep(tcp::v4(), MAIN_SERVER);
         //ChatServer main_servers(io_service, ep);
-
 
         //int ports[SERVERS_COUNT] = ALL_CHAT_SERVERS;
         std::list<ChatServer> servers;

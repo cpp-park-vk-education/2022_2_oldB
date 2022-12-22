@@ -5,13 +5,15 @@
 #include <boost/asio.hpp>
 #include "Message.h"
 
+#include "ui_mainwindow.h"
+
 using boost::asio::ip::tcp;
 
 typedef std::deque<Message> chat_message_queue;
 
-class СhatСlient {
+class ChatClient {
 public:
-    СhatСlient(boost::asio::io_service& io_service, tcp::resolver::iterator ep_iter) : io_service_(io_service), socket_(io_service) {
+    ChatClient(boost::asio::io_service& io_service, tcp::resolver::iterator ep_iter, Ui::MainWindow *_ui) : io_service_(io_service), socket_(io_service), ui(_ui) {
         do_connect(ep_iter);  // подключаем пользователя к серверу
     }
 
@@ -52,19 +54,7 @@ private:
             });
     }
 
-    void do_read_body() {
-        boost::asio::async_read(socket_, boost::asio::buffer(read_message_.inf(), read_message_.inf_length()),
-            [this](boost::system::error_code ec, std::size_t /*length*/)
-            {
-                if (!ec && read_message_.decode_text()) {
-                    std::cout << read_message_.get_username() << ": " << read_message_.get_body();  // выводим прочитанное сообщение на экран
-                    std::cout << "\n";
-                    do_read_header();                                                    // сразу же начинаем читать следующее, если оно пришло
-                }
-                else
-                    socket_.close();
-            });
-    }
+    void do_read_body();
 
     void do_write() {
         boost::asio::async_write(socket_,
@@ -86,4 +76,5 @@ private:
     tcp::socket socket_;
     Message read_message_;
     chat_message_queue write_messages_;  // очередь из сообщений для определенного сервера (одна на всех клиентов)
+    Ui::MainWindow *ui;
 };
