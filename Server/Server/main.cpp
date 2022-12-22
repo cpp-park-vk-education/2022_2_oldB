@@ -130,7 +130,7 @@ private:
                         Message msg;
                         msg.set_username(read_message_.get_username());
                         msg.set_type(Message::authorization);
-                        if (read_message_.get_body() == "ted12345" /* if user in DB */) {
+                        if (read_message_.get_body() == "123" /* if user in DB */) {
 
                             //DB get users ports as std::vector<int>
 

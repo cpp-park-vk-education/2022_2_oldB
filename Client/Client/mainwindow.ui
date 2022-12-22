@@ -75,7 +75,7 @@
            <string notr="true"/>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>2</number>
           </property>
           <widget class="QWidget" name="page_1">
            <layout class="QGridLayout" name="gridLayout_2">
@@ -442,7 +442,7 @@ background-color: #525252;
              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
             </property>
            </widget>
-           <widget class="QLineEdit" name="username_le_5">
+           <widget class="QLineEdit" name="newLoginLine">
             <property name="geometry">
              <rect>
               <x>160</x>
@@ -577,7 +577,7 @@ background-color: #525252;
              <string>Exit</string>
             </property>
            </widget>
-           <widget class="QLineEdit" name="ip_address_le_7">
+           <widget class="QLineEdit" name="newPassLine">
             <property name="geometry">
              <rect>
               <x>160</x>
@@ -654,11 +654,6 @@ border-top-left-radius: 10px;
 border-top-right-radius: 10px;
 background-color: #54525e;</string>
             </property>
-            <item>
-             <property name="text">
-              <string>7777</string>
-             </property>
-            </item>
            </widget>
            <widget class="QLabel" name="label">
             <property name="geometry">
