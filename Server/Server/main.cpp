@@ -24,6 +24,7 @@ class ChatParticipant {
 public:
     virtual ~ChatParticipant() {}
     virtual void deliver(const Message& message) = 0;
+    virtual std::string get_username();
 };
 
 typedef std::shared_ptr<ChatParticipant> chat_participant_ptr;
@@ -32,6 +33,7 @@ typedef std::shared_ptr<ChatParticipant> chat_participant_ptr;
 
 class ChatRoom {
 public:
+    ChatRoom(int _rooms_port) : rooms_port(_rooms_port) {}
     void join(chat_participant_ptr participant) {  // пользователь добавляется в список пользователей комнаты
         participants_.insert(participant);
 
@@ -64,6 +66,7 @@ private:
     std::set<chat_participant_ptr> participants_;   // участники комнаты
     enum { max_recent_messages = 100 };
     chat_message_queue recent_messages_;  // хранится 100 сообщений в комнате
+    int rooms_port;
 };
 
 //----------------------------------------------------------------------
@@ -86,6 +89,10 @@ public:
             do_write();
     }
 
+    std::string get_username() {
+        return cur_username;
+    }
+
 private:
     void do_read_header() {  // читаем заголовок сообщения
         auto self(shared_from_this());
@@ -106,6 +113,7 @@ private:
             [this, self](boost::system::error_code ec, std::size_t /*length*/)
             {
                 if (!ec && read_message_.decode_text()) {
+                    cur_username = read_message_.get_username();
                     if (read_message_.get_type() == Message::registration) {
 
                         //DB Add new user read_message_.username (username) and read_message_.body (password)
@@ -130,7 +138,7 @@ private:
                         Message msg;
                         msg.set_username(read_message_.get_username());
                         msg.set_type(Message::authorization);
-                        if (read_message_.get_body() == "ted12345" /* if user in DB */) {
+                        if (read_message_.get_body() == "123" /* if user in DB */) {
 
                             //DB get users ports as std::vector<int>
 
@@ -188,13 +196,16 @@ private:
     ChatRoom& room_;
     Message read_message_;
     chat_message_queue write_messages_;
+
+public:
+    std::string cur_username;
 };
 
 //----------------------------------------------------------------------
 
 class ChatServer {
 public:
-    ChatServer(boost::asio::io_service& io_service, const tcp::endpoint& endpoint) : acceptor_(io_service, endpoint), socket_(io_service) {
+    ChatServer(boost::asio::io_service& io_service, const tcp::endpoint& endpoint, int port) : acceptor_(io_service, endpoint), socket_(io_service), room_(port) {
         do_accept();
     }
 
