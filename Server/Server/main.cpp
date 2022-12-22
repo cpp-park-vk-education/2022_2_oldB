@@ -6,23 +6,35 @@
 #include <set>
 #include <utility>
 #include <boost/asio.hpp>
-#include "../../Client/Client/chat_message.hpp"
+#include "../../Client/Client/Message.h"
+#include "DBConnection.h"
+#include "PSQLUserRepository.h"
+#include "PSQLRoomRepository.h"
+#include "PSQLMessageRepository.h"
 
-#define MAIN_SERVER 2002
-#define RETURN_SERVER [2002, 2003, 2004]
+
+#define MAIN_SERVER 2001
+#define ALL_CHAT_SERVERS {2001, 2002, 2003, 2004, 2005}
+#define SERVERS_COUNT 5
 
 using boost::asio::ip::tcp;
 
 //----------------------------------------------------------------------
 
-typedef std::deque<ChatMessage> chat_message_queue;
+typedef std::deque<Message> chat_message_queue;
 
 //----------------------------------------------------------------------
+
+std::string conString = "hostaddr=127.0.0.1 port=5432 dbname=chatDB user=postgres password=123";
+DBConnection con(conString);
+PSQLUserRepository repUser(con);
+PSQLRoomRepository repRoom(con);
+PSQLMessageRepository repMessage(con);
 
 class ChatParticipant {
 public:
     virtual ~ChatParticipant() {}
-    virtual void deliver(const ChatMessage& message) = 0;
+    virtual void deliver(const Message& message) = 0;
 };
 
 typedef std::shared_ptr<ChatParticipant> chat_participant_ptr;
@@ -33,17 +45,27 @@ class ChatRoom {
 public:
     void join(chat_participant_ptr participant) {  // пользователь добавляется в список пользователей комнаты
         participants_.insert(participant);
+
+        // DB add user to room
+        repMessage.addUserToRoom(user, room)
+
         for (auto message : recent_messages_)
             participant->deliver(message);
     }
 
     void leave(chat_participant_ptr participant) {
         participants_.erase(participant);
+
+        // DB del user from room
+        repUser.deleteUserFromRoom(user, room);
+
     }
 
-    void deliver(const ChatMessage& message) {
+    void deliver(const Message& message) {
         recent_messages_.push_back(message);
-        //db.add_messages();
+
+        //DB add messages
+        repMessage.addMessage(message);
 
         while (recent_messages_.size() > max_recent_messages)
             recent_messages_.pop_front();
@@ -62,18 +84,17 @@ private:
 
 class ChatSession : public ChatParticipant, public std::enable_shared_from_this<ChatSession> {  // взаимодействие с конкретным клиентов
 public:
-    ChatSession(tcp::socket socket, ChatRoom& room) : socket_(std::move(socket)), room_(room) {}
+    ChatSession(tcp::socket socket, ChatRoom& room) : socket_(std::move(socket)), room_(room) {
+    }
 
     void start() {
         room_.join(shared_from_this());  // добавляем его в комнату
         do_read_header();                // начинаем читать его сообщения
     }
 
-    void deliver(const ChatMessage& message) {
+    void deliver(const Message& message) {
         bool write_in_progress = !write_messages_.empty();
         write_messages_.push_back(message);
-
-        //std::cout << message.data()[9] << message.data()[10] << message.data()[11] << message.data()[12] << message.data()[13] << message.data()[14] << message.data()[15] << std::endl;
 
         if (!write_in_progress)
             do_write();
@@ -82,7 +103,7 @@ public:
 private:
     void do_read_header() {  // читаем заголовок сообщения
         auto self(shared_from_this());
-        boost::asio::async_read(socket_, boost::asio::buffer(read_message_.data(), ChatMessage::header_length),
+        boost::asio::async_read(socket_, boost::asio::buffer(read_message_.data(), Message::header_length),
             [this, self](boost::system::error_code ec, std::size_t /*length*/)
             {
                 if (!ec && read_message_.decode_header()) {
@@ -99,7 +120,56 @@ private:
             [this, self](boost::system::error_code ec, std::size_t /*length*/)
             {
                 if (!ec && read_message_.decode_text()) {
-                    room_.deliver(read_message_);
+                    if (read_message_.get_type() == Message::registration) {
+
+                        //DB Add new user read_message_.username (username) and read_message_.body (password)
+                        std::vector<User> users = repUser.getAllUsers();
+                        int id = users.size() + 1;
+                        User user(id, "user", "user", read_message_.username, read_message_.body);
+                        repUser.addUser(user);
+
+                        Message msg;
+                        msg.set_username(read_message_.get_username());
+                        msg.set_type(Message::registration);
+                        if (1 /* if add complete */) {
+                            msg.set_body(std::to_string(true));
+                        }
+                        else {
+                            msg.set_body(std::to_string(false));
+                        }
+
+                        msg.encode();
+                        do_write_sistem_msg(msg);
+                    }
+                    else if (read_message_.get_type() == Message::authorization) {
+
+                        //DB Check user in db by read_message_.username (username) and read_message_.body (password)
+                        int is_correct = repUser.validateUser(read_message_.username, read_message_.body);
+
+                        Message msg;
+                        msg.set_username(read_message_.get_username());
+                        msg.set_type(Message::authorization);
+                        //if (1 /* if user in DB */) {
+                        if (is_correct) {
+
+                            //DB get users ports as std::vector<int>
+                            User user = repUser.getUserByLogin(read_message_.username);
+                            std::vector<int> ports = repRoom.getRoomsByUser(user);
+
+                            //std::vector<int> ports = { 2001 };
+                            msg.convert_ports_to_string(ports);
+                        }
+                        else {
+                            msg.set_body(std::to_string(false));
+                        }
+
+                        msg.encode();
+                        do_write_sistem_msg(msg);
+                    }
+                    else if (read_message_.get_type() == Message::send_message) {
+                        room_.deliver(read_message_);
+                    }
+
                     do_read_header();
                 }
                 else
@@ -119,14 +189,26 @@ private:
                         do_write();
                     }
                 }
-                else
+                if (ec)
                     room_.leave(shared_from_this());
+            });
+    }
+
+    void do_write_sistem_msg(Message &msg) {  // возвращаем информацию одному клиенту
+        auto self(shared_from_this());
+        boost::asio::async_write(socket_,
+            boost::asio::buffer(msg.data(), msg.length()),
+            [this, self](boost::system::error_code ec, std::size_t /*length*/)
+            {
+                if (ec) {
+                    room_.leave(shared_from_this());
+                }
             });
     }
 
     tcp::socket socket_;
     ChatRoom& room_;
-    ChatMessage read_message_;
+    Message read_message_;
     chat_message_queue write_messages_;
 };
 
@@ -159,12 +241,23 @@ private:
 
 int main(int argc, char* argv[]) {
     try {
+
+        //DB get all rooms
+        std::vector<Room> rooms = repRoom.getAllRooms();
+
         boost::asio::io_service io_service;
 
-
         //MAIN_SERVER
-        tcp::endpoint ep(tcp::v4(), MAIN_SERVER);
-        ChatServer servers(io_service, ep);
+        //tcp::endpoint ep(tcp::v4(), MAIN_SERVER);
+        //ChatServer main_servers(io_service, ep);
+
+
+        int ports[SERVERS_COUNT] = ALL_CHAT_SERVERS;
+        std::list<ChatServer> servers;
+        for (int i = 0; i < SERVERS_COUNT; ++i) {
+            tcp::endpoint endpoint(tcp::v4(), ports[i]);
+            servers.emplace_back(io_service, endpoint);
+        }
 
         io_service.run();  // удержание до завершения
     }
