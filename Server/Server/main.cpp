@@ -6,7 +6,14 @@
 #include <set>
 #include <utility>
 #include <boost/asio.hpp>
+
 #include "../../Client/Client/Message.h"
+
+#include "DBConnection.h"
+#include "PSQLUserRepository.h"
+#include "PSQLRoomRepository.h"
+#include "PSQLMessageRepository.h"
+
 
 #define MAIN_SERVER 2001
 #define ALL_CHAT_SERVERS {2001, 2002, 2003, 2004, 2005}
@@ -19,6 +26,12 @@ using boost::asio::ip::tcp;
 typedef std::deque<Message> chat_message_queue;
 
 //----------------------------------------------------------------------
+
+std::string conString = "hostaddr=127.0.0.1 port=5432 dbname=chatDB user=postgres password=123";
+DBConnection con(conString);
+PSQLUserRepository repUser(con);
+PSQLRoomRepository repRoom(con);
+PSQLMessageRepository repMessage(con);
 
 class ChatParticipant {
 public:
@@ -38,6 +51,10 @@ public:
         participants_.insert(participant);
 
         // DB add user to room
+        User user = repUser.getUserByLogin(participant->get_username());
+        Room room = repRoom.getRoomByPort(rooms_port);
+
+        repMessage.addUserToRoom(user, room);
 
         for (auto message : recent_messages_)
             participant->deliver(message);
@@ -47,13 +64,23 @@ public:
         participants_.erase(participant);
 
         // DB del user from room
+        User user = repUser.getUserByLogin(participant->get_username());
+        Room room = repRoom.getRoomByPort(rooms_port);
+
+        repUser.deleteUserFromRoom(user, room);
 
     }
 
-    void deliver(const Message& message) {
+    void deliver(Message& message) {
         recent_messages_.push_back(message);
 
         //DB add messages
+        std::vector<ChatMessage> msgs = repMessage.getAllMessages();
+        int id = msgs.size() + 1;
+        User user = repUser.getUserByLogin(message.get_username());
+        Room room = repRoom.getRoomByPort(rooms_port);
+        ChatMessage chat_message(id, message.get_body(), user.id, room.id);
+        repMessage.addMessage(chat_message);
 
         while (recent_messages_.size() > max_recent_messages)
             recent_messages_.pop_front();
@@ -117,6 +144,10 @@ private:
                     if (read_message_.get_type() == Message::registration) {
 
                         //DB Add new user read_message_.username (username) and read_message_.body (password)
+                        std::vector<User> users = repUser.getAllUsers();
+                        int id = users.size() + 1;
+                        User user(id, "user", "user", read_message_.get_username(), read_message_.get_body());
+                        repUser.addUser(user);
 
                         Message msg;
                         msg.set_username(read_message_.get_username());
@@ -134,15 +165,18 @@ private:
                     else if (read_message_.get_type() == Message::authorization) {
 
                         //DB Check user in db by read_message_.username (username) and read_message_.body (password)
+                        int is_correct = repUser.validateUser(read_message_.get_username(), read_message_.get_body());
 
                         Message msg;
                         msg.set_username(read_message_.get_username());
                         msg.set_type(Message::authorization);
-                        if (read_message_.get_body() == "123" /* if user in DB */) {
+                        //if (1 /* if user in DB */) {
+                        if (is_correct) {
 
                             //DB get users ports as std::vector<int>
+                            std::vector<int> ports = repRoom.getPortsByUsername(read_message_.get_username());
 
-                            std::vector<int> ports = { 2001 };
+                            //std::vector<int> ports = { 2001 };
                             msg.convert_ports_to_string(ports);
                         }
                         else {
@@ -177,6 +211,18 @@ private:
                 }
                 if (ec)
                     room_.leave(shared_from_this());
+            });
+    }
+
+    void do_write_sistem_msg(Message &msg) {  // возвращаем информацию одному клиенту
+        auto self(shared_from_this());
+        boost::asio::async_write(socket_,
+            boost::asio::buffer(msg.data(), msg.length()),
+            [this, self](boost::system::error_code ec, std::size_t /*length*/)
+            {
+                if (ec) {
+                    room_.leave(shared_from_this());
+                }
             });
     }
 
@@ -230,22 +276,20 @@ private:
 
 int main(int argc, char* argv[]) {
     try {
-		
-		//DB get all rooms
-		
-		
+        //DB get all rooms
+        std::vector<Room> rooms = repRoom.getAllRooms();
+
         boost::asio::io_service io_service;
 
         //MAIN_SERVER
         //tcp::endpoint ep(tcp::v4(), MAIN_SERVER);
         //ChatServer main_servers(io_service, ep);
 
-
-        int ports[SERVERS_COUNT] = ALL_CHAT_SERVERS;
+        //int ports[SERVERS_COUNT] = ALL_CHAT_SERVERS;
         std::list<ChatServer> servers;
         for (int i = 0; i < SERVERS_COUNT; ++i) {
-            tcp::endpoint endpoint(tcp::v4(), ports[i]);
-            servers.emplace_back(io_service, endpoint, ports[i]);
+            tcp::endpoint endpoint(tcp::v4(), rooms[i].port);
+            servers.emplace_back(io_service, endpoint, rooms[i].port);
         }
 
         io_service.run();  // удержание до завершения
