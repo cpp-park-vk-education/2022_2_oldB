@@ -185,23 +185,24 @@ void MainWindow::on_createRoomButton_clicked()
 
     std::string strPort = newRoomPort.toStdString();
 
-//    if (client.СreateNewRoom(strPort)) {
-//        std::vector<int> userPorts;
-//        if (client.GetUsersPorts(userPorts)) {
-//            qDebug() << "Порты считаны";
-//        }
+    if (client.СreateNewRoom(stoi(strPort))) {
+        std::vector<int> userPorts;
+        if (client.GetUsersPorts(userPorts)) {
+            qDebug() << "Порты считаны";
+        }
 
-//        QString strPort;
-//        for (auto port : userPorts) {
-//            strPort = QString::number(port);
-//            ui->roomsList->addItem(strPort);
-//        }
+        QString strPort;
+        ui->roomsList->clear();
+        for (auto port : userPorts) {
+            strPort = QString::number(port);
+            ui->roomsList->addItem(strPort);
+        }
 
-//        ui->stackedWidget_2->setCurrentIndex(3);
-//    }
-//    else {
-//        qDebug() << "ошибка создания комнаты";
-//    }
+        ui->stackedWidget_2->setCurrentIndex(3);
+    }
+    else {
+        qDebug() << "ошибка создания комнаты";
+    }
 }
 
 bool MakeDecision(QString message) {
