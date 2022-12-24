@@ -51,10 +51,11 @@ public:
         participants_.insert(participant);
 
         // DB add user to room
-        User user = repUser.getUserByLogin(participant->get_username());
-        Room room = repRoom.getRoomByPort(rooms_port);
-
-        repMessage.addUserToRoom(user, room);
+        if (rooms_port != MAIN_SERVER) {
+            User user = repUser.getUserByLogin(participant->get_username());
+            Room room = repRoom.getRoomByPort(rooms_port);
+            repMessage.addUserToRoom(user, room);
+        }
 
         for (auto message : recent_messages_)
             participant->deliver(message);
@@ -64,11 +65,11 @@ public:
         participants_.erase(participant);
 
         // DB del user from room
-        User user = repUser.getUserByLogin(participant->get_username());
-        Room room = repRoom.getRoomByPort(rooms_port);
-
-        repUser.deleteUserFromRoom(user, room);
-
+        if (rooms_port != MAIN_SERVER) {
+            User user = repUser.getUserByLogin(participant->get_username());
+            Room room = repRoom.getRoomByPort(rooms_port);
+            repUser.deleteUserFromRoom(user, room);
+        }
     }
 
     void deliver(Message& message) {
@@ -147,12 +148,12 @@ private:
                         std::vector<User> users = repUser.getAllUsers();
                         int id = users.size() + 1;
                         User user(id, "user", "user", read_message_.get_username(), read_message_.get_body());
-                        repUser.addUser(user);
+                        int is_correct = repUser.addUser(user);
 
                         Message msg;
                         msg.set_username(read_message_.get_username());
                         msg.set_type(Message::registration);
-                        if (1 /* if add complete */) {
+                        if (is_correct) {
                             msg.set_body(std::to_string(true));
                         }
                         else {
