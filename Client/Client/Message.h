@@ -122,7 +122,7 @@ public:
             size_t t = 10;
             int tmp = ports[i];
             for (int j = lenght_length - 1; j >= 0; j--) {
-                res[i * 4 + j] = std::to_string(tmp % t)[0];
+                res[i * lenght_length + j] = std::to_string(tmp % t)[0];
                 tmp -= tmp % t;
                 t *= 10;
             }

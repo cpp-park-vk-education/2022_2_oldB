@@ -37,7 +37,6 @@ class ChatParticipant {
 public:
     virtual ~ChatParticipant() {}
     virtual void deliver(const Message& message) = 0;
-    virtual std::string get_username() = 0;
 };
 
 typedef std::shared_ptr<ChatParticipant> chat_participant_ptr;
@@ -51,11 +50,11 @@ public:
         participants_.insert(participant);
 
         // DB add user to room
-        if (rooms_port != MAIN_SERVER) {
-            User user = repUser.getUserByLogin(participant->get_username());
-            Room room = repRoom.getRoomByPort(rooms_port);
-            repMessage.addUserToRoom(user, room);
-        }
+        //if (rooms_port != MAIN_SERVER) {
+        //    User user = repUser.getUserByLogin(participant->get_username());
+        //    Room room = repRoom.getRoomByPort(rooms_port);
+        //    repMessage.addUserToRoom(user, room);
+        //}
 
         for (auto message : recent_messages_)
             participant->deliver(message);
@@ -65,9 +64,9 @@ public:
         participants_.erase(participant);
 
         // DB del user from room
-        User user = repUser.getUserByLogin(participant->get_username());
-        Room room = repRoom.getRoomByPort(rooms_port);
-        repUser.deleteUserFromRoom(user, room);
+        //User user = repUser.getUserByLogin(participant->get_username());
+        //Room room = repRoom.getRoomByPort(rooms_port);
+        //repUser.deleteUserFromRoom(user, room);
     }
 
     void deliver(Message& message) {
@@ -115,10 +114,6 @@ public:
             do_write();
     }
 
-    std::string get_username() {
-        return cur_username;
-    }
-
 private:
     void do_read_header() {  // читаем заголовок сообщения
         auto self(shared_from_this());
@@ -139,7 +134,6 @@ private:
             [this, self](boost::system::error_code ec, std::size_t /*length*/)
             {
                 if (!ec && read_message_.decode_text()) {
-                    cur_username = read_message_.get_username();
                     if (read_message_.get_type() == Message::registration) {
 
                         //DB Add new user read_message_.username (username) and read_message_.body (password)
@@ -188,6 +182,10 @@ private:
                     else if (read_message_.get_type() == Message::create_port) {
 
                         //DB если комната есть, добавить пользователя в нее
+
+                        User user = repUser.getUserByLogin(read_message_.get_username());
+                        Room room = repRoom.getRoomByPort(stoi(read_message_.get_body()));
+                        repMessage.addUserToRoom(user, room);
 
                         Message msg;
                         msg.set_username(read_message_.get_username());
@@ -247,9 +245,6 @@ private:
     ChatRoom& room_;
     Message read_message_;
     chat_message_queue write_messages_;
-
-public:
-    std::string cur_username;
 };
 
 //----------------------------------------------------------------------
