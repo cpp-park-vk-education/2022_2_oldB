@@ -96,7 +96,7 @@ public:
     std::vector<int> getPortsByUsername(std::string username) const {
         std::string sql = "select r.port \
         from rooms r join messages m  on r.id = m.room_id  join users u on u.id = m.user_id \
-        where u.id = '" + username + "'";
+        where u.login = '" + username + "'";
 
         pqxx::nontransaction N(*(con->getCon()));
 

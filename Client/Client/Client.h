@@ -122,6 +122,12 @@ public:
                 return false;
         }
 
+    bool СreateNewRoom(int port);
+
+    bool ErrorMessageWasSend();
+
+    bool GetErrorStatistics(int &statistics);
+
 private:
     std::string& Hashing(std::string& password) {
         return password;
