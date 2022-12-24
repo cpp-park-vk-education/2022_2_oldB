@@ -89,11 +89,11 @@ public:
         return users;
     }
 
-    void addUser(User user) {
+    bool addUser(User user) {
         std::stringstream sql;
 
         if(checkLogin(user.login))
-            return;
+            return false;
 
         sql << "INSERT INTO users (id, name, surname, login, password) "
           "VALUES (";
@@ -105,6 +105,8 @@ public:
         W.exec(sql.str());
         W.commit();
         std::cout << "Records created successfully\n";
+        
+        return true;
     }
 
     void deleteUser(User user) {
