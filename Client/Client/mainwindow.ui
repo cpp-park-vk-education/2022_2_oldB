@@ -43,8 +43,8 @@
         <bool>false</bool>
        </property>
        <layout class="QGridLayout" name="gridLayout_5">
-        <item row="0" column="3">
-         <spacer name="horizontalSpacer_2">
+        <item row="0" column="0">
+         <spacer name="horizontalSpacer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -56,8 +56,8 @@
           </property>
          </spacer>
         </item>
-        <item row="0" column="0">
-         <spacer name="horizontalSpacer">
+        <item row="0" column="3">
+         <spacer name="horizontalSpacer_2">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -603,12 +603,12 @@ color: white;</string>
             </property>
            </widget>
           </widget>
-          <widget class="QWidget" name="page_6">
+          <widget class="QWidget" name="page_5">
            <widget class="QPushButton" name="joinRoomButton">
             <property name="geometry">
              <rect>
               <x>10</x>
-              <y>460</y>
+              <y>370</y>
               <width>331</width>
               <height>35</height>
              </rect>
@@ -634,7 +634,7 @@ background-color: #525252;
               <x>10</x>
               <y>50</y>
               <width>331</width>
-              <height>381</height>
+              <height>301</height>
              </rect>
             </property>
             <property name="font">
@@ -749,6 +749,167 @@ background-color: #525252;
               </widget>
              </item>
             </layout>
+           </widget>
+           <widget class="QPushButton" name="goToCreateRoomButton">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>420</y>
+              <width>331</width>
+              <height>35</height>
+             </rect>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton { 
+font: 20pt;
+border: 2px solid #8aecff;
+border-radius: 12px;
+} 
+
+QPushButton:hover {
+background-color: #525252;
+}</string>
+            </property>
+            <property name="text">
+             <string>Create New Room</string>
+            </property>
+           </widget>
+          </widget>
+          <widget class="QWidget" name="page_6">
+           <widget class="QLineEdit" name="newRoomPort">
+            <property name="geometry">
+             <rect>
+              <x>157</x>
+              <y>180</y>
+              <width>186</width>
+              <height>29</height>
+             </rect>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>15</pointsize>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">border: 2px solid #8aecff; border-radius: 10px;
+color: white;</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="createRoomButton">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>250</y>
+              <width>333</width>
+              <height>35</height>
+             </rect>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>20</pointsize>
+              <italic>false</italic>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton { 
+font: 20pt;
+border: 2px solid #8aecff;
+border-radius: 12px;
+} 
+
+QPushButton:hover {
+background-color: #525252;
+}</string>
+            </property>
+            <property name="text">
+             <string>Create</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label_23">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>180</y>
+              <width>141</width>
+              <height>29</height>
+             </rect>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>15</pointsize>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: none;</string>
+            </property>
+            <property name="text">
+             <string>Room port</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="exitButton_11">
+            <property name="geometry">
+             <rect>
+              <x>203</x>
+              <y>540</y>
+              <width>140</width>
+              <height>35</height>
+             </rect>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton { 
+font: 20pt;
+border: 2px solid #8aecff;
+border-radius: 12px;
+} 
+
+QPushButton:hover {
+background-color: #525252;
+}</string>
+            </property>
+            <property name="text">
+             <string>Exit</string>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="backButton_10">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>540</y>
+              <width>141</width>
+              <height>35</height>
+             </rect>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>20</pointsize>
+              <italic>false</italic>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton { 
+font: 20pt;
+border: 2px solid #8aecff;
+border-radius: 12px;
+} 
+
+QPushButton:hover {
+background-color: #525252;
+}</string>
+            </property>
+            <property name="text">
+             <string>Back</string>
+            </property>
            </widget>
           </widget>
          </widget>
