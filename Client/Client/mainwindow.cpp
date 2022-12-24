@@ -66,6 +66,7 @@ void MainWindow::on_loginButton_clicked()
         }
 
         QString strPort;
+        ui->roomsList->clear();
         for (auto port : userPorts) {
             strPort = QString::number(port);
             ui->roomsList->addItem(strPort);
@@ -132,6 +133,8 @@ void MainWindow::on_exitLobbyButton_clicked()
 
 void MainWindow::on_leaveLobbyButton_clicked()
 {
+    client.DisconnectToChat();
+    ui->chatTextWidget->clear();
     ui->stackedWidget->setCurrentIndex(0);
     ui->stackedWidget_2->setCurrentIndex(3); // rooms list
 }
@@ -155,17 +158,6 @@ void MainWindow::on_createAccBtn_clicked()
     std::string strPassword = password.toStdString();
 
     if (client.Registration(strLogin, strPassword)) {
-        std::vector<int> userPorts;
-        if (client.GetUsersPorts(userPorts)) {
-            qDebug() << "Порты считаны";
-        }
-
-        QString strPort;
-        for (auto port : userPorts) {
-            strPort = QString::number(port);
-            ui->roomsList->addItem(strPort);
-        }
-
         ui->stackedWidget_2->setCurrentIndex(1);
     }
     else {
