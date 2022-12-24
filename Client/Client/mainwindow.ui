@@ -774,6 +774,30 @@ background-color: #525252;
              <string>Create New Room</string>
             </property>
            </widget>
+           <widget class="QPushButton" name="getStatButton">
+            <property name="geometry">
+             <rect>
+              <x>50</x>
+              <y>470</y>
+              <width>231</width>
+              <height>35</height>
+             </rect>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton { 
+font: 20pt;
+border: 2px solid #8aecff;
+border-radius: 12px;
+} 
+
+QPushButton:hover {
+background-color: #525252;
+}</string>
+            </property>
+            <property name="text">
+             <string>Statistics</string>
+            </property>
+           </widget>
           </widget>
           <widget class="QWidget" name="page_6">
            <widget class="QLineEdit" name="newRoomPort">

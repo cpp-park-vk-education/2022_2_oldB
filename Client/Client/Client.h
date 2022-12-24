@@ -110,7 +110,7 @@ public:
         tcp::resolver resolver(io_context);
         boost::asio::connect(socket, resolver.resolve("127.0.0.1", "2001"));
 
-        std::string empty_str = "";
+        std::string empty_str = "1";
         Message msg(username, empty_str, Message::error_msg);
         msg.encode();
         boost::asio::write(socket, boost::asio::buffer(msg.data(), msg.length()));
@@ -133,7 +133,7 @@ public:
         tcp::resolver resolver(io_context);
         boost::asio::connect(socket, resolver.resolve("127.0.0.1", "2001"));
 
-        std::string empty_str = "";
+        std::string empty_str = "1";
         Message msg(username, empty_str, Message::get_statistic);
         msg.encode();
         boost::asio::write(socket, boost::asio::buffer(msg.data(), msg.length()));
@@ -147,13 +147,8 @@ public:
             char tmp[Message::lenght_length + 1] = "";
             for (size_t j = 0; j < Message::lenght_length; j++)
                 tmp[j] = msg.get_body()[j];
-            for (size_t j = 0; j < Message::lenght_length; j++)
-                tmp[j] = msg.get_body()[Message::lenght_length + j];
 
-            int all_msg = std::atoi(tmp);
-            int err_msg = std::atoi(tmp);
-            double tmp_statistics = err_msg / all_msg * 100;
-            statistics = tmp_statistics;
+            statistics = std::atoi(tmp);
 
             return true;
         }
