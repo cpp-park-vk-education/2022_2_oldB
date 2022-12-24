@@ -153,7 +153,7 @@ private:
                         Message msg;
                         msg.set_username(read_message_.get_username());
                         msg.set_type(Message::registration);
-                        if (is_correct) {
+                        if (is_correct) { /* if add complete */
                             msg.set_body(std::to_string(true));
                         }
                         else {
