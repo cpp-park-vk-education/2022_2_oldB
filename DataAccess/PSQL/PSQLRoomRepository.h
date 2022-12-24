@@ -94,7 +94,7 @@ public:
     }
 
     std::vector<int> getPortsByUsername(std::string username) const {
-        std::string sql = "select r.port \
+        std::string sql = "select distinct r.port \
         from rooms r join messages m  on r.id = m.room_id  join users u on u.id = m.user_id \
         where u.login = '" + username + "'";
 
@@ -143,8 +143,18 @@ public:
         std::cout << "Records updated successfully" << std::endl;
     }
 
-    bool checkRoom(const std::string &name) const {
+    bool checkRoomByName(const std::string &name) const {
         std::string sql = "SELECT * from rooms WHERE name = '" + name + "'";
+
+        pqxx::nontransaction N(*(con->getCon()));
+
+        pqxx::result res(N.exec(sql));
+        
+        return res.size() != 0;
+    }
+
+    bool checkRoomByPort(const int &port) const {
+        std::string sql = "SELECT * from rooms WHERE port = " + std::to_string(port);
 
         pqxx::nontransaction N(*(con->getCon()));
 
