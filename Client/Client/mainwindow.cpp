@@ -213,7 +213,7 @@ void MainWindow::on_createRoomButton_clicked()
 }
 
 bool MakeDecision(QString message) {
-    Hunspell spell ("../Client/en_US.aff", "../Client/en_US.dic");
+    Hunspell spell ("../Client/ru_RU.aff", "../Client/ru_RU.dic");
     bool result = true;
     QStringList words = message.split(' ');
 
