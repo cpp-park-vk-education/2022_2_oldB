@@ -9,8 +9,9 @@ public:
     std::string surname;
     std::string login;
     std::string password;
+    int mistakes;
 
     User() {}
-    User(int id, std::string name, std::string surname, std::string login, std::string password)
-    : id(id), name(name), surname(surname), login(login), password(password) {}
+    User(int id, std::string name, std::string surname, std::string login, std::string password, int mistakes)
+    : id(id), name(name), surname(surname), login(login), password(password), mistakes(mistakes) {}
 };
