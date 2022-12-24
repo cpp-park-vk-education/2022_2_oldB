@@ -13,11 +13,13 @@ def generate_user():
     f = open('users.csv', 'w')
     user_id = [i for i in range(1, N+1)]
     for i in range(N):
+        mistakes = random.randint(0, 80)
         line = "{0},{1},{2},{3},{4}\n".format(user_id[i],
                                               faker.first_name(),
                                               faker.last_name(),
                                               faker.user_name(),
-                                              faker.password())
+                                              faker.password(),
+                                              mistakes)
         f.write(line)
     f.close()
 
