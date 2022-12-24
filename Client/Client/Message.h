@@ -10,12 +10,12 @@
 class Message {
 public:
     enum { type_length = 1, lenght_length = 5, max_username_length = 20, max_body_length = 512, header_length = type_length + 2 * lenght_length };
-    enum { registration = 0, authorization = 1, send_message = 2 };
+    enum { registration = 0, authorization = 1, send_message = 2, create_port = 3, error_msg = 4, get_statistic = 5 };
 
     Message()
-        : type(send_message), username(""), body(""), body_length_(0), username_length_(0), message("") {}
+        : type(send_message), username(""), body(""), message(""), username_length_(0), body_length_(0) {}
     Message(std::string& _username, std::string& _body, int _type = send_message)
-        : type(_type), username(_username), body(_body), body_length_(0), username_length_(0), message("") {
+        : type(_type), username(_username), body(_body), message(""), username_length_(0), body_length_(0) {
         encode();
     }
     Message(const Message& other) {
@@ -148,6 +148,12 @@ private:
             type = authorization;
         else if (message[0] == '2')
             type = send_message;
+        else if (message[0] == '3')
+            type = create_port;
+        else if (message[0] == '4')
+            type = error_msg;
+        else if (message[0] == '5')
+            type = get_statistic;
         else
             return false;
 
@@ -191,6 +197,12 @@ private:
             message[0] = '1';
         else if (type == send_message)
             message[0] = '2';
+        else if (type == create_port)
+            message[0] = '3';
+        else if (type == error_msg)
+            message[0] = '4';
+        else if (type == get_statistic)
+            message[0] = '5';
     }
 
     void encode_lenght() {

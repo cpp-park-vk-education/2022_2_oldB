@@ -65,11 +65,9 @@ public:
         participants_.erase(participant);
 
         // DB del user from room
-        if (rooms_port != MAIN_SERVER) {
-            User user = repUser.getUserByLogin(participant->get_username());
-            Room room = repRoom.getRoomByPort(rooms_port);
-            repUser.deleteUserFromRoom(user, room);
-        }
+        User user = repUser.getUserByLogin(participant->get_username());
+        Room room = repRoom.getRoomByPort(rooms_port);
+        repUser.deleteUserFromRoom(user, room);
     }
 
     void deliver(Message& message) {
@@ -187,6 +185,24 @@ private:
                         msg.encode();
                         do_write_sistem_msg(msg);
                     }
+                    else if (read_message_.get_type() == Message::create_port) {
+
+                        //DB если комната есть, добавить пользователя в нее
+
+                        Message msg;
+                        msg.set_username(read_message_.get_username());
+                        msg.set_type(Message::create_port);
+
+                        if (1 /*получилось добавить*/ ) {
+                            msg.set_body(std::to_string(true));
+                        }
+                        else {
+                            msg.set_body(std::to_string(false));
+                        }
+
+                        msg.encode();
+                        do_write_sistem_msg(msg);
+                    }
                     else if (read_message_.get_type() == Message::send_message) {
                         room_.deliver(read_message_);
                     }
@@ -263,20 +279,15 @@ private:
 
 //----------------------------------------------------------------------
 
-int main(int argc, char* argv[]) {
+int main() {
     try {
         //DB get all rooms
         std::vector<Room> rooms = repRoom.getAllRooms();
 
         boost::asio::io_service io_service;
 
-        //MAIN_SERVER
-        //tcp::endpoint ep(tcp::v4(), MAIN_SERVER);
-        //ChatServer main_servers(io_service, ep);
-
-        //int ports[SERVERS_COUNT] = ALL_CHAT_SERVERS;
         std::list<ChatServer> servers;
-        for (int i = 0; i < SERVERS_COUNT; ++i) {
+        for (size_t i = 0; i < rooms.size(); ++i) {
             tcp::endpoint endpoint(tcp::v4(), rooms[i].port);
             servers.emplace_back(io_service, endpoint, rooms[i].port);
         }
