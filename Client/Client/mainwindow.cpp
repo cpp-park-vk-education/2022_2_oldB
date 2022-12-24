@@ -8,6 +8,11 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <string>
 #include <QDebug>
+#include <string>
+#include <hunspell/hunspell.hxx>
+#include <QList>
+#include <QDebug>
+
 
 #define FREE_PORT_NUM_START 1024
 #define FREE_PORT_NUM_END 65535
@@ -61,7 +66,6 @@ void MainWindow::on_loginButton_clicked()
         }
 
         QString strPort;
-        ui->roomsList->clear();
         for (auto port : userPorts) {
             strPort = QString::number(port);
             ui->roomsList->addItem(strPort);
@@ -128,8 +132,6 @@ void MainWindow::on_exitLobbyButton_clicked()
 
 void MainWindow::on_leaveLobbyButton_clicked()
 {
-    client.DisconnectToChat();
-    ui->chatTextWidget->clear();
     ui->stackedWidget->setCurrentIndex(0);
     ui->stackedWidget_2->setCurrentIndex(3); // rooms list
 }
@@ -153,6 +155,17 @@ void MainWindow::on_createAccBtn_clicked()
     std::string strPassword = password.toStdString();
 
     if (client.Registration(strLogin, strPassword)) {
+        std::vector<int> userPorts;
+        if (client.GetUsersPorts(userPorts)) {
+            qDebug() << "Порты считаны";
+        }
+
+        QString strPort;
+        for (auto port : userPorts) {
+            strPort = QString::number(port);
+            ui->roomsList->addItem(strPort);
+        }
+
         ui->stackedWidget_2->setCurrentIndex(1);
     }
     else {
@@ -180,39 +193,63 @@ void MainWindow::on_createRoomButton_clicked()
 
     std::string strPort = newRoomPort.toStdString();
 
-    if (client.СreateNewRoom(stoi(strPort))) {
-        std::vector<int> userPorts;
-        if (client.GetUsersPorts(userPorts)) {
-            qDebug() << "Порты считаны";
-        }
+//    if (client.СreateNewRoom(strPort)) {
+//        std::vector<int> userPorts;
+//        if (client.GetUsersPorts(userPorts)) {
+//            qDebug() << "Порты считаны";
+//        }
 
-        QString strPort;
-        ui->roomsList->clear();
-        for (auto port : userPorts) {
-            strPort = QString::number(port);
-            ui->roomsList->addItem(strPort);
-        }
+//        QString strPort;
+//        for (auto port : userPorts) {
+//            strPort = QString::number(port);
+//            ui->roomsList->addItem(strPort);
+//        }
 
-        ui->stackedWidget_2->setCurrentIndex(3);
+//        ui->stackedWidget_2->setCurrentIndex(3);
+//    }
+//    else {
+//        qDebug() << "ошибка создания комнаты";
+//    }
+}
+
+bool MakeDecision(QString message) {
+    Hunspell spell ("../spell/en_US.aff", "../spell/en_US.dic");
+    bool result = true;
+    QStringList words = message.split(' ');
+
+    for (QString word : words) {
+        if (spell.spell(word.toStdString().c_str()) == 0) {
+                result = false;
+                break;
+        }
     }
-    else {
-        qDebug() << "ошибка создания комнаты";
-    }
+    return result;
 }
 
 
 void MainWindow::on_sendButton_clicked()
 {
     sendMessage();
+
 }
 
 void MainWindow::sendMessage() {
     if (!ui->inputTextEdit->toPlainText().isEmpty()) {
-        std::string message(ui->inputTextEdit->toPlainText().toStdString());
 
-        client.WriteMessage(message); //FIXME
-        qDebug() << "Сообщение отправлено!";
-        ui->inputTextEdit->clear();
+        QString message(ui->inputTextEdit->toPlainText());
+
+        if (MakeDecision(message)) {
+    //        std::string message(ui->inputTextEdit->toPlainText().toStdString());
+            std::string strMsg = message.toStdString();
+            client.WriteMessage(strMsg); //FIXME
+            qDebug() << "Сообщение отправлено!";
+            ui->inputTextEdit->clear();
+
+        }
+        else {
+            QMessageBox::warning(this, "Внимание","Ваше сообщение содержит ошибку");
+
+        }
 
     }
 }

@@ -56,8 +56,6 @@ private:
 
     void do_read_body();
 
-    void do_read_system_body();
-
     void do_write() {
         boost::asio::async_write(socket_,
             boost::asio::buffer(write_messages_.front().data(), write_messages_.front().length()),

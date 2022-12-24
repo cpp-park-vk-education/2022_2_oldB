@@ -24,8 +24,6 @@ public:
         }
     }
 
-    //system ports (2001)
-
     bool Registration(std::string& username, std::string& password) {
         boost::asio::io_context io_context;
 
@@ -67,9 +65,9 @@ public:
             return false;
 
         ports.clear();
-        for (size_t i = 0; i < msg.get_body().size() / Message::lenght_length; i++) {
+        for (int i = 0; i < msg.get_body().size() / Message::lenght_length; i++) {
             char tmp[Message::lenght_length + 1] = "";
-            for (size_t j = 0; j < Message::lenght_length; j++)
+            for (int j = 0; j < Message::lenght_length; j++)
                 tmp[j] = msg.get_body()[i * Message::lenght_length + j];
 
             ports.push_back(std::atoi(tmp));
@@ -78,89 +76,6 @@ public:
         this->username = msg.get_username();
         return true;
     }
-
-    bool СreateNewRoom(int port) {
-        boost::asio::io_context io_context;
-
-        tcp::socket socket(io_context);
-        tcp::resolver resolver(io_context);
-        boost::asio::connect(socket, resolver.resolve("127.0.0.1", "2001"));
-
-        std::string tmp_port = std::to_string(port);
-        Message msg(username, tmp_port, Message::create_port);
-        msg.encode();
-        boost::asio::write(socket, boost::asio::buffer(msg.data(), msg.length()));
-
-        boost::asio::read(socket, boost::asio::buffer(msg.data(), Message::header_length));
-        msg.decode_header();
-        boost::asio::read(socket, boost::asio::buffer(msg.inf(), msg.inf_length()));
-        msg.decode_text();
-
-        if (msg.get_body()[0]) {
-            ports.push_back(port);
-            return true;
-        }
-        return false;
-    }
-
-    bool ErrorMessageWasSend() {
-        boost::asio::io_context io_context;
-
-        tcp::socket socket(io_context);
-        tcp::resolver resolver(io_context);
-        boost::asio::connect(socket, resolver.resolve("127.0.0.1", "2001"));
-
-        std::string empty_str = "";
-        Message msg(username, empty_str, Message::error_msg);
-        msg.encode();
-        boost::asio::write(socket, boost::asio::buffer(msg.data(), msg.length()));
-
-        boost::asio::read(socket, boost::asio::buffer(msg.data(), Message::header_length));
-        msg.decode_header();
-        boost::asio::read(socket, boost::asio::buffer(msg.inf(), msg.inf_length()));
-        msg.decode_text();
-
-        if (msg.get_body()[0]) {
-            return true;
-        }
-        return false;
-    }
-
-    bool GetErrorStatistics(int &statistics) {
-        boost::asio::io_context io_context;
-
-        tcp::socket socket(io_context);
-        tcp::resolver resolver(io_context);
-        boost::asio::connect(socket, resolver.resolve("127.0.0.1", "2001"));
-
-        std::string empty_str = "";
-        Message msg(username, empty_str, Message::get_statistic);
-        msg.encode();
-        boost::asio::write(socket, boost::asio::buffer(msg.data(), msg.length()));
-
-        boost::asio::read(socket, boost::asio::buffer(msg.data(), Message::header_length));
-        msg.decode_header();
-        boost::asio::read(socket, boost::asio::buffer(msg.inf(), msg.inf_length()));
-        msg.decode_text();
-
-        if (msg.get_body().size()) {
-            char tmp[Message::lenght_length + 1] = "";
-            for (size_t j = 0; j < Message::lenght_length; j++)
-                tmp[j] = msg.get_body()[j];
-            for (size_t j = 0; j < Message::lenght_length; j++)
-                tmp[j] = msg.get_body()[Message::lenght_length + j];
-
-            int all_msg = std::atoi(tmp);
-            int err_msg = std::atoi(tmp);
-            double tmp_statistics = err_msg / all_msg * 100;
-            statistics = tmp_statistics;
-
-            return true;
-        }
-        return false;
-    }
-
-    //users ports
 
     bool GetUsersPorts(std::vector<int>& users_ports) {
         if (ports.size()) {
@@ -198,14 +113,20 @@ public:
     }
 
     bool WriteMessage(std::string &message) {
-        Message msg(username, message);
-        if(connected_to_server == true) {
-            chat_client->write(msg);
-            return true;
+            Message msg(username, message);
+            if(connected_to_server == true) {
+                chat_client->write(msg);
+                return true;
+            }
+            else
+                return false;
         }
-        else
-            return false;
-    }
+
+    bool СreateNewRoom(int port);
+
+    bool ErrorMessageWasSend();
+
+    bool GetErrorStatistics(int &statistics);
 
 private:
     std::string& Hashing(std::string& password) {
