@@ -8,6 +8,11 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <string>
 #include <QDebug>
+#include <string>
+#include <hunspell/hunspell.hxx>
+#include <QList>
+#include <QDebug>
+
 
 #define FREE_PORT_NUM_START 1024
 #define FREE_PORT_NUM_END 65535
@@ -200,19 +205,44 @@ void MainWindow::on_createRoomButton_clicked()
     }
 }
 
+bool MakeDecision(QString message) {
+    Hunspell spell ("../spell/en_US.aff", "../spell/en_US.dic");
+    bool result = true;
+    QStringList words = message.split(' ');
+
+    for (QString word : words) {
+        if (spell.spell(word.toStdString().c_str()) == 0) {
+                result = false;
+                break;
+        }
+    }
+    return result;
+}
+
 
 void MainWindow::on_sendButton_clicked()
 {
     sendMessage();
+
 }
 
 void MainWindow::sendMessage() {
     if (!ui->inputTextEdit->toPlainText().isEmpty()) {
-        std::string message(ui->inputTextEdit->toPlainText().toStdString());
 
-        client.WriteMessage(message); //FIXME
-        qDebug() << "Сообщение отправлено!";
-        ui->inputTextEdit->clear();
+        QString message(ui->inputTextEdit->toPlainText());
+
+        if (MakeDecision(message)) {
+    //        std::string message(ui->inputTextEdit->toPlainText().toStdString());
+            std::string strMsg = message.toStdString();
+            client.WriteMessage(strMsg); //FIXME
+            qDebug() << "Сообщение отправлено!";
+            ui->inputTextEdit->clear();
+
+        }
+        else {
+            QMessageBox::warning(this, "Внимание","Ваше сообщение содержит ошибку");
+
+        }
 
     }
 }
