@@ -139,7 +139,7 @@ private:
                         //DB Add new user read_message_.username (username) and read_message_.body (password)
                         std::vector<User> users = repUser.getAllUsers();
                         int id = users.size() + 1;
-                        User user(id, "user", "user", read_message_.get_username(), read_message_.get_body());
+                        User user(id, "user", "user", read_message_.get_username(), read_message_.get_body(), 0);
                         int is_correct = repUser.addUser(user);
 
                         Message msg;
