@@ -147,12 +147,12 @@ private:
                         std::vector<User> users = repUser.getAllUsers();
                         int id = users.size() + 1;
                         User user(id, "user", "user", read_message_.get_username(), read_message_.get_body());
-                        repUser.addUser(user);
+                        int is_correct = repUser.addUser(user);
 
                         Message msg;
                         msg.set_username(read_message_.get_username());
                         msg.set_type(Message::registration);
-                        if (1 /* if add complete */) {
+                        if (is_correct) { /* if add complete */
                             msg.set_body(std::to_string(true));
                         }
                         else {
