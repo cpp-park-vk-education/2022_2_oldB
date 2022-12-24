@@ -50,7 +50,7 @@ public:
 
     std::vector<ChatMessage> getMessagesOfUser(User user) const {
         std::string sql = "select * from messages \
-        where user_id = " + std::to_string(user.id);
+        where user_id = " + std::to_string(user.id) + "and text != ''";
 
         pqxx::nontransaction N(*(con->getCon()));
 
