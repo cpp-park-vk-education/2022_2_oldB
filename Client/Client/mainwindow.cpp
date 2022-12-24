@@ -26,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent)
     QPixmap pixmap(image_path);
     QIcon ButtonIcon(pixmap);
     ui->sendButton->setIcon(ButtonIcon);
-    ui->sendButton->setIconSize(ui->sendButton->rect().size() / 2);
+    ui->sendButton->setIconSize(ui->sendButton->rect().size() / 1.5);
 }
 
 MainWindow::~MainWindow() {
@@ -174,6 +174,39 @@ void MainWindow::on_returnFromRoomsBtn_clicked()
     ui->stackedWidget_2->setCurrentIndex(0);
 }
 
+void MainWindow::on_goToCreateRoomButton_clicked()
+{
+    ui->stackedWidget_2->setCurrentIndex(4);
+}
+
+
+void MainWindow::on_createRoomButton_clicked()
+{
+    auto const newRoomPort(ui->newRoomPort->text());
+
+    qDebug() << "new_room_posrt =" << newRoomPort;
+
+    std::string strPort = newRoomPort.toStdString();
+
+//    if (client.СreateNewRoom(strPort)) {
+//        std::vector<int> userPorts;
+//        if (client.GetUsersPorts(userPorts)) {
+//            qDebug() << "Порты считаны";
+//        }
+
+//        QString strPort;
+//        for (auto port : userPorts) {
+//            strPort = QString::number(port);
+//            ui->roomsList->addItem(strPort);
+//        }
+
+//        ui->stackedWidget_2->setCurrentIndex(3);
+//    }
+//    else {
+//        qDebug() << "ошибка создания комнаты";
+//    }
+}
+
 
 void MainWindow::on_sendButton_clicked()
 {
@@ -205,5 +238,16 @@ void ChatClient::do_read_body() {
             else
                 socket_.close();
         });
+}
+
+void MainWindow::on_backButton_10_clicked()
+{
+    ui->stackedWidget_2->setCurrentIndex(2);
+}
+
+
+void MainWindow::on_exitButton_11_clicked()
+{
+    QApplication::quit();
 }
 

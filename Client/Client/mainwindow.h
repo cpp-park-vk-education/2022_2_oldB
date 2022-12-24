@@ -50,6 +50,14 @@ private slots:
     void on_sendButton_clicked();
 
 
+    void on_createRoomButton_clicked();
+
+    void on_goToCreateRoomButton_clicked();
+
+    void on_backButton_10_clicked();
+
+    void on_exitButton_11_clicked();
+
 private:
     void sendMessage();
 
