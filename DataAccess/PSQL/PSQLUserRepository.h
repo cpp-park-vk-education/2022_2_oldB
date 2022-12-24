@@ -29,7 +29,7 @@ public:
 
         for (pqxx::result::const_iterator c = res.begin(); c != res.end(); ++c) {
             users.push_back(User(c[0].as<int>(), c[1].as<std::string>(), c[2].as<std::string>(),
-                        c[3].as<std::string>(), c[4].as<std::string>()));
+                        c[3].as<std::string>(), c[4].as<std::string>(), c[5].as<int>()));
         }
 
         return users;
@@ -44,7 +44,7 @@ public:
             pqxx::result res(N.exec(sql));
 
             User user(res[0][0].as<int>(), res[0][1].as<std::string>(), res[0][2].as<std::string>(),
-                                res[0][3].as<std::string>(), res[0][4].as<std::string>());
+                                res[0][3].as<std::string>(), res[0][4].as<std::string>(), res[0][5].as<int>());
 
             return user;
         } catch (const std::exception &e) {
@@ -62,7 +62,7 @@ public:
             pqxx::result res(N.exec(sql));
 
             User user(res[0][0].as<int>(), res[0][1].as<std::string>(), res[0][2].as<std::string>(),
-                                res[0][3].as<std::string>(), res[0][4].as<std::string>());
+                                res[0][3].as<std::string>(), res[0][4].as<std::string>(), res[0][5].as<int>());
 
             return user;
         } catch (const std::exception &e) {
@@ -71,7 +71,7 @@ public:
     }
 
     std::vector<User> getUsersOfRoom(Room room) const {
-        std::string sql = "select u.id, u.name, u.surname, u.login, u.password \
+        std::string sql = "select u.id, u.name, u.surname, u.login, u.password, u.mistakes \
         from rooms r join messages m  on r.id = m.room_id  join users u on u.id = m.user_id \
         where r.id = " + std::to_string(room.id);
 
@@ -83,7 +83,7 @@ public:
 
         for (pqxx::result::const_iterator c = res.begin(); c != res.end(); ++c) {
             users.push_back(User(c[0].as<int>(), c[1].as<std::string>(), c[2].as<std::string>(),
-                        c[3].as<std::string>(), c[4].as<std::string>()));
+                        c[3].as<std::string>(), c[4].as<std::string>(), c[5].as<int>()));
         }
 
         return users;
@@ -95,11 +95,11 @@ public:
         if(checkLogin(user.login))
             return false;
 
-        sql << "INSERT INTO users (id, name, surname, login, password) "
+        sql << "INSERT INTO users (id, name, surname, login, password, mistakes) "
           "VALUES (";
         sql << user.id << ',' << '\'' << user.name << '\''
             << ',' << '\'' << user.surname << '\'' << ',' << '\'' 
-            << user.login << '\'' << ',' << '\'' << user.password << '\'' << ");";
+            << user.login << '\'' << ',' << '\'' << user.password << '\'' << ',' << user.mistakes << ");";
 
         pqxx::work W(*(con->getCon()));
         W.exec(sql.str());
@@ -129,8 +129,19 @@ public:
     }
 
     void updateUser(User &user) {
-        std::string sql = "UPDATE users set login = " + user.login + ", \
-        password = " + user.password + " \
+        std::string sql = "UPDATE users set login = '" + user.login + "', \
+        password = '" + user.password + "' \
+        where id = " + std::to_string(user.id);
+
+        pqxx::work W(*(con->getCon()));
+        W.exec(sql);
+        W.commit();
+        std::cout << "Records updated successfully" << std::endl;
+    }
+
+    void addMistake(User &user) {
+        user.mistakes++;
+        std::string sql = "UPDATE users set mistakes = " + std::to_string(user.mistakes) + " \
         where id = " + std::to_string(user.id);
 
         pqxx::work W(*(con->getCon()));
@@ -149,18 +160,21 @@ public:
             return res.size() != 0;
         } catch (const std::exception &e) {
             return false;
-        }
-        
+        }  
     }
 
     bool validateUser(const std::string &login, const std::string &password) const {
-        std::string sql = "SELECT * from users WHERE login = '" + login + "'";
+        try {
+            std::string sql = "SELECT * from users WHERE login = '" + login + "'";
 
-        pqxx::nontransaction N(*(con->getCon()));
+            pqxx::nontransaction N(*(con->getCon()));
 
-        pqxx::result res(N.exec(sql));
-        
-        return res[0][4].as<std::string>() == password;
+            pqxx::result res(N.exec(sql));
+
+            return res[0][4].as<std::string>() == password;
+        } catch (const std::exception &e) {
+            return false;
+        }
     }
 
 
