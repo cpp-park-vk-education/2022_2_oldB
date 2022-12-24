@@ -56,8 +56,9 @@ public:
         //    repMessage.addUserToRoom(user, room);
         //}
 
-        for (auto message : recent_messages_)
-            participant->deliver(message);
+        if (rooms_port != MAIN_SERVER)
+            for (auto message : recent_messages_)
+                participant->deliver(message);
     }
 
     void leave(chat_participant_ptr participant) {
@@ -193,6 +194,52 @@ private:
 
                         if (1 /*получилось добавить*/ ) {
                             msg.set_body(std::to_string(true));
+                        }
+                        else {
+                            msg.set_body(std::to_string(false));
+                        }
+
+                        msg.encode();
+                        do_write_sistem_msg(msg);
+                    }
+                    else if (read_message_.get_type() == Message::error_msg) {
+
+                        //DB если комната есть, добавить пользователя в нее
+
+                        User user = repUser.getUserByLogin(read_message_.get_username());
+                        repUser.addMistake(user);
+
+                        Message msg;
+                        msg.set_username(read_message_.get_username());
+                        msg.set_type(Message::error_msg);
+
+                        if (1 /*получилось добавить*/ ) {
+                            msg.set_body(std::to_string(true));
+                        }
+                        else {
+                            msg.set_body(std::to_string(false));
+                        }
+
+                        msg.encode();
+                        do_write_sistem_msg(msg);
+                    }
+                    else if (read_message_.get_type() == Message::get_statistic) {
+
+                        //DB если комната есть, добавить пользователя в нее
+
+                        User user = repUser.getUserByLogin(read_message_.get_username());
+                        double mistakes = user.mistakes;
+                        double all_msg = repMessage.getMessagesOfUser(user).size();
+
+                        std::vector<int> statistic;
+                        statistic.push_back(mistakes / all_msg * 100);
+
+                        Message msg;
+                        msg.set_username(read_message_.get_username());
+                        msg.set_type(Message::get_statistic);
+
+                        if (1 /*получилось добавить*/ ) {
+                            msg.convert_ports_to_string(statistic);
                         }
                         else {
                             msg.set_body(std::to_string(false));

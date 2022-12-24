@@ -176,6 +176,13 @@ void MainWindow::on_goToCreateRoomButton_clicked()
     ui->stackedWidget_2->setCurrentIndex(4);
 }
 
+void MainWindow::on_getStatButton_clicked()
+{
+    int stat;
+    client.GetErrorStatistics(stat);
+    QMessageBox::information(this, "Статистика", "Вы отправляете " + QString::number(stat) + "% сообщений с ошибками");
+}
+
 
 void MainWindow::on_createRoomButton_clicked()
 {
@@ -206,7 +213,7 @@ void MainWindow::on_createRoomButton_clicked()
 }
 
 bool MakeDecision(QString message) {
-    Hunspell spell ("../spell/en_US.aff", "../spell/en_US.dic");
+    Hunspell spell ("../Client/en_US.aff", "../Client/en_US.dic");
     bool result = true;
     QStringList words = message.split(' ');
 
@@ -232,7 +239,7 @@ void MainWindow::sendMessage() {
         QString message(ui->inputTextEdit->toPlainText());
 
         if (MakeDecision(message)) {
-    //        std::string message(ui->inputTextEdit->toPlainText().toStdString());
+            //std::string message(ui->inputTextEdit->toPlainText().toStdString());
             std::string strMsg = message.toStdString();
             client.WriteMessage(strMsg); //FIXME
             qDebug() << "Сообщение отправлено!";
@@ -241,7 +248,7 @@ void MainWindow::sendMessage() {
         }
         else {
             QMessageBox::warning(this, "Внимание","Ваше сообщение содержит ошибку");
-
+            client.ErrorMessageWasSend();
         }
 
     }

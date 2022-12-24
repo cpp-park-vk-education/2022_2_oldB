@@ -54,6 +54,8 @@ private slots:
 
     void on_goToCreateRoomButton_clicked();
 
+    void on_getStatButton_clicked();
+
     void on_backButton_10_clicked();
 
     void on_exitButton_11_clicked();
