@@ -51,10 +51,11 @@ public:
         participants_.insert(participant);
 
         // DB add user to room
-        User user = repUser.getUserByLogin(participant->get_username());
-        Room room = repRoom.getRoomByPort(rooms_port);
-
-        repMessage.addUserToRoom(user, room);
+        if (rooms_port != MAIN_SERVER) {
+            User user = repUser.getUserByLogin(participant->get_username());
+            Room room = repRoom.getRoomByPort(rooms_port);
+            repMessage.addUserToRoom(user, room);
+        }
 
         for (auto message : recent_messages_)
             participant->deliver(message);
@@ -64,11 +65,11 @@ public:
         participants_.erase(participant);
 
         // DB del user from room
-        User user = repUser.getUserByLogin(participant->get_username());
-        Room room = repRoom.getRoomByPort(rooms_port);
-
-        repUser.deleteUserFromRoom(user, room);
-
+        if (rooms_port != MAIN_SERVER) {
+            User user = repUser.getUserByLogin(participant->get_username());
+            Room room = repRoom.getRoomByPort(rooms_port);
+            repUser.deleteUserFromRoom(user, room);
+        }
     }
 
     void deliver(Message& message) {
