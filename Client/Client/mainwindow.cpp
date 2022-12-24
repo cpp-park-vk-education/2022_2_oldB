@@ -129,6 +129,7 @@ void MainWindow::on_exitLobbyButton_clicked()
 void MainWindow::on_leaveLobbyButton_clicked()
 {
     client.DisconnectToChat();
+    ui->chatTextWidget->clear();
     ui->stackedWidget->setCurrentIndex(0);
     ui->stackedWidget_2->setCurrentIndex(3); // rooms list
 }
