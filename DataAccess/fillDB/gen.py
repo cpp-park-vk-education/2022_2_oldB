@@ -30,9 +30,10 @@ def generate_room():
     room_id = [i for i in range(1, N+1)]
     port = 2000
     for i in range(N):
-        line = "{0},{1},{2}\n".format(room_id[i],
+        line = "{0},{1},{2},{3}\n".format(room_id[i],
                                   faker.word(),
-                                  port + i + 1)
+                                  port + i + 1,
+                                  faker.password())
         f.write(line)
     f.close()
 

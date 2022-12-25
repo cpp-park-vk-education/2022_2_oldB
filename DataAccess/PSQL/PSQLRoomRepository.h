@@ -27,7 +27,7 @@ public:
         std::vector<Room> rooms;
 
         for (pqxx::result::const_iterator c = res.begin(); c != res.end(); ++c) {
-            rooms.push_back(Room(c[0].as<int>(), c[1].as<std::string>(), c[2].as<int>()));
+            rooms.push_back(Room(c[0].as<int>(), c[1].as<std::string>(), c[2].as<int>(), c[3].as<std::string>()));
         }
 
         return rooms;
@@ -40,7 +40,7 @@ public:
 
         pqxx::result res(N.exec(sql));
 
-        Room room(res[0][0].as<int>(), res[0][1].as<std::string>(), res[0][2].as<int>());
+        Room room(res[0][0].as<int>(), res[0][1].as<std::string>(), res[0][2].as<int>(), res[0][3].as<std::string>());
 
         return room;
     }
@@ -52,7 +52,7 @@ public:
 
         pqxx::result res(N.exec(sql));
 
-        Room room(res[0][0].as<int>(), res[0][1].as<std::string>(), res[0][2].as<int>());
+        Room room(res[0][0].as<int>(), res[0][1].as<std::string>(), res[0][2].as<int>(), res[0][3].as<std::string>());
 
         return room;
     }
@@ -69,7 +69,7 @@ public:
         std::vector<Room> rooms;
 
         for (pqxx::result::const_iterator c = res.begin(); c != res.end(); ++c) {
-            rooms.push_back(Room(c[0].as<int>(), c[1].as<std::string>(), c[2].as<int>()));
+            rooms.push_back(Room(c[0].as<int>(), c[1].as<std::string>(), c[2].as<int>(), c[3].as<std::string>()));
         }
 
         return rooms;
@@ -114,9 +114,9 @@ public:
     void addRoom(Room room) {
         std::stringstream sql;
 
-        sql << "INSERT INTO rooms (id, name) "
+        sql << "INSERT INTO rooms (id, name, password) "
           "VALUES (";
-        sql << room.id << ',' << '\'' << room.name << '\'' << ");";
+        sql << room.id << ',' << '\'' << room.name << '\'' << ',' << '\'' << room.password << '\''<< ");";
 
         pqxx::work W(*(con->getCon()));
         W.exec(sql.str());
@@ -134,7 +134,9 @@ public:
     }
 
     void updateRoom(Room &room) {
-        std::string sql = "UPDATE rooms set name = '" + room.name + "' \
+        std::string sql = "UPDATE rooms set name = '" + room.name + "', \
+        port = " + std::to_string(room.port) + ", \
+        password = '" + room.password + "' \
         where id = " + std::to_string(room.id);
 
         pqxx::work W(*(con->getCon()));
@@ -161,6 +163,19 @@ public:
         pqxx::result res(N.exec(sql));
         
         return res.size() != 0;
+    }
+
+    bool checkRoomPassword(Room &room) const {
+        std::string sql = "SELECT * from rooms WHERE id = " + std::to_string(room.id);
+
+        pqxx::nontransaction N(*(con->getCon()));
+
+        pqxx::result res(N.exec(sql));
+        
+        if (res.empty())
+            return false;
+
+        return res[0][3].as<std::string>() == room.password;
     }
 
 private:
