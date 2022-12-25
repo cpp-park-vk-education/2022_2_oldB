@@ -212,7 +212,7 @@ void MainWindow::on_createRoomButton_clicked()
     }
 }
 
-bool MakeDecision(QString message) {
+bool MakeDecision(QString message, QString &err) {
     Hunspell spell_ru("../Client/ru_RU.aff", "../Client/ru_RU.dic");
     Hunspell spell_en("../Client/en_US.aff", "../Client/en_US.dic");
     bool result = true;
@@ -221,6 +221,7 @@ bool MakeDecision(QString message) {
     for (QString word : words) {
         if (spell_ru.spell(word.toStdString().c_str()) == 0 && spell_en.spell(word.toStdString().c_str()) == 0) {
                 result = false;
+                err = word;
                 break;
         }
     }
@@ -238,8 +239,8 @@ void MainWindow::sendMessage() {
     if (!ui->inputTextEdit->toPlainText().isEmpty()) {
 
         QString message(ui->inputTextEdit->toPlainText());
-
-        if (MakeDecision(message)) {
+        QString err;
+        if (MakeDecision(message, err)) {
             //std::string message(ui->inputTextEdit->toPlainText().toStdString());
             std::string strMsg = message.toStdString();
             client.WriteMessage(strMsg); //FIXME
@@ -248,7 +249,7 @@ void MainWindow::sendMessage() {
 
         }
         else {
-            QMessageBox::warning(this, "Внимание","Ваше сообщение содержит ошибку");
+            QMessageBox::warning(this, "Внимание","Ваше сообщение содержит ошибку в слове " + err);
             client.ErrorMessageWasSend();
         }
 
