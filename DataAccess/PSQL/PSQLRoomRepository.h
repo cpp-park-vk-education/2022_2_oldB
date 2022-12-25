@@ -165,7 +165,7 @@ public:
         return res.size() != 0;
     }
 
-    bool checkRoomPassword(Room &room) const {
+    bool checkRoomPassword(Room &room, std::string password) const {
         std::string sql = "SELECT * from rooms WHERE id = " + std::to_string(room.id);
 
         pqxx::nontransaction N(*(con->getCon()));
@@ -175,7 +175,7 @@ public:
         if (res.empty())
             return false;
 
-        return res[0][3].as<std::string>() == room.password;
+        return res[0][3].as<std::string>() == password;
     }
 
 private:
