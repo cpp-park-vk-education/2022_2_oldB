@@ -229,7 +229,7 @@ private:
 
                         User user = repUser.getUserByLogin(read_message_.get_username());
                         double mistakes = user.mistakes;
-                        double all_msg = repMessage.getMessagesOfUser(user).size();
+                        double all_msg = repMessage.getMessagesOfUser(user).size() + mistakes;
 
                         std::vector<int> statistic;
                         statistic.push_back(mistakes / all_msg * 100);
