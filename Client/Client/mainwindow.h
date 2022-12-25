@@ -27,17 +27,17 @@ private slots:
 
     void on_joinRoomButton_clicked();
 
-    void on_exitButton_clicked();
+//    void on_exitButton_clicked();
 
-    void on_exitButton_4_clicked();
+//    void on_exitButton_4_clicked();
 
     void on_backButton_4_clicked();
 
     void on_backButton_8_clicked();
 
-    void on_exitButton_9_clicked();
+//    void on_exitButton_9_clicked();
 
-    void on_exitLobbyButton_clicked();
+//    void on_exitLobbyButton_clicked();
 
     void on_leaveLobbyButton_clicked();
 
@@ -58,7 +58,7 @@ private slots:
 
     void on_backButton_10_clicked();
 
-    void on_exitButton_11_clicked();
+//    void on_exitButton_11_clicked();
 
 private:
     void sendMessage();
