@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent)
     QPixmap pixmap(image_path);
     QIcon ButtonIcon(pixmap);
     ui->sendButton->setIcon(ButtonIcon);
-    ui->sendButton->setIconSize(ui->sendButton->rect().size() / 1.5);
+    ui->sendButton->setIconSize(ui->sendButton->rect().size() / 2);
 }
 
 MainWindow::~MainWindow() {
@@ -97,20 +97,7 @@ void MainWindow::on_joinRoomButton_clicked()
 }
 
 
-void MainWindow::on_exitButton_clicked()
-{
-    client.DisconnectToChat();
-    ui->chatTextWidget->clear();
-    QApplication::quit();
-}
 
-
-void MainWindow::on_exitButton_4_clicked()
-{
-    client.DisconnectToChat();
-    ui->chatTextWidget->clear();
-    QApplication::quit();
-}
 
 
 void MainWindow::on_backButton_4_clicked()
@@ -124,21 +111,6 @@ void MainWindow::on_backButton_8_clicked()
     ui->stackedWidget_2->setCurrentIndex(0);
 }
 
-
-void MainWindow::on_exitButton_9_clicked()
-{
-    client.DisconnectToChat();
-    ui->chatTextWidget->clear();
-    QApplication::quit();
-}
-
-
-void MainWindow::on_exitLobbyButton_clicked()
-{
-    client.DisconnectToChat();
-    ui->chatTextWidget->clear();
-    QApplication::quit();
-}
 
 
 void MainWindow::on_leaveLobbyButton_clicked()
@@ -301,13 +273,5 @@ void ChatClient::do_read_body() {
 void MainWindow::on_backButton_10_clicked()
 {
     ui->stackedWidget_2->setCurrentIndex(2);
-}
-
-
-void MainWindow::on_exitButton_11_clicked()
-{
-    client.DisconnectToChat();
-    ui->chatTextWidget->clear();
-    QApplication::quit();
 }
 
