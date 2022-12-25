@@ -45,6 +45,17 @@ public:
         return message + header_length;
     }
 
+    void get_room_inf(int &port, std::string &password) {
+        char tmp[Message::lenght_length + 1] = "";
+        for (size_t j = 0; j < Message::lenght_length; j++)
+            tmp[j] = get_body()[j];
+        port = std::atoi(tmp);
+
+        for (size_t j = Message::lenght_length; j < get_body().size(); j++) {
+            password.push_back(get_body()[j]);
+        }
+    }
+
     int get_type() {
         return type;
     }
