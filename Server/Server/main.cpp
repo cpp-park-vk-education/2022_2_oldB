@@ -241,7 +241,23 @@ private:
                         double all_msg = repMessage.getMessagesOfUser(user).size() + mistakes;
 
                         std::vector<int> statistic;
-                        statistic.push_back(mistakes / all_msg * 100);
+                        if (all_msg)
+                            statistic.push_back(mistakes / all_msg * 100);
+                        else
+                            statistic.push_back(0);
+
+                        std::vector<User> all_users = repUser.getAllUsers();
+                        double users_count = all_users.size();
+                        double count = 0.0;
+
+                        for (auto& cur_user : all_users)
+                            if (cur_user.mistakes < mistakes)
+                                count ++;
+
+                        if (users_count)
+                            statistic.push_back(count / users_count * 100);
+                        else
+                            statistic.push_back(0);
 
                         Message msg;
                         msg.set_username(read_message_.get_username());

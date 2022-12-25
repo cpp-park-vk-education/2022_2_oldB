@@ -153,7 +153,6 @@ void MainWindow::on_leaveLobbyButton_clicked()
 void MainWindow::on_createNewAccBtn_clicked()
 {
     ui->stackedWidget_2->setCurrentIndex(2);
-
 }
 
 
@@ -189,20 +188,24 @@ void MainWindow::on_goToCreateRoomButton_clicked()
 void MainWindow::on_getStatButton_clicked()
 {
     int stat;
-    client.GetErrorStatistics(stat);
-    QMessageBox::information(this, "Статистика", "Вы отправляете " + QString::number(stat) + "% сообщений с ошибками");
+    int all_stat;
+    client.GetErrorStatistics(stat, all_stat);
+    QMessageBox::information(this, "Статистика", "Вы отправляете " + QString::number(stat) + "% сообщений с ошибками\n" + "Это больше чем у " + QString::number(all_stat) + "% пользователей");
 }
 
 
 void MainWindow::on_createRoomButton_clicked()
 {
     auto const newRoomPort(ui->newRoomPort->text());
+    auto const newRoomPassword(ui->newRoomPassword->text());
 
     qDebug() << "new_room_posrt =" << newRoomPort;
+    qDebug() << "new_room_posrt =" << newRoomPassword;
 
     std::string strPort = newRoomPort.toStdString();
+    std::string strPassword = newRoomPassword.toStdString();
 
-    if (client.СreateNewRoom(stoi(strPort))) {
+    if (client.СreateNewRoom(stoi(strPort), strPassword)) {
         std::vector<int> userPorts;
         if (client.GetUsersPorts(userPorts)) {
             qDebug() << "Порты считаны";
@@ -222,18 +225,26 @@ void MainWindow::on_createRoomButton_clicked()
     }
 }
 
-bool MakeDecision(QString message, QString &err) {
+bool MakeDecision(QString message, QString &err, std::vector<std::string> &suggest) {
     Hunspell spell_ru("../Client/ru_RU.aff", "../Client/ru_RU.dic");
     Hunspell spell_en("../Client/en_US.aff", "../Client/en_US.dic");
     bool result = true;
     QStringList words = message.split(' ');
 
+    bool _flag = false;
     for (QString word : words) {
-        if (spell_ru.spell(word.toStdString().c_str()) == 0 && spell_en.spell(word.toStdString().c_str()) == 0) {
+        if (word[0] == '_')
+            _flag = true;
+        if (_flag == false && spell_ru.spell(word.toStdString().c_str()) == 0 && spell_en.spell(word.toStdString().c_str()) == 0) {
                 result = false;
                 err = word;
+                suggest = spell_ru.suggest(word.toStdString());
+                if (suggest.empty())
+                    suggest = spell_en.suggest(word.toStdString());
                 break;
         }
+        if (word[word.size() - 1] == '_')
+            _flag = false;
     }
     return result;
 }
@@ -249,7 +260,8 @@ void MainWindow::sendMessage() {
 
         QString message(ui->inputTextEdit->toPlainText());
         QString err;
-        if (MakeDecision(message, err)) {
+        std::vector<std::string> suggest;
+        if (MakeDecision(message, err, suggest)) {
             //std::string message(ui->inputTextEdit->toPlainText().toStdString());
             std::string strMsg = message.toStdString();
             client.WriteMessage(strMsg); //FIXME
@@ -258,7 +270,12 @@ void MainWindow::sendMessage() {
 
         }
         else {
-            QMessageBox::warning(this, "Внимание","Ваше сообщение содержит ошибку в слове " + err);
+            std::string res;
+            for (auto word : suggest) {
+                res += word;
+                res += '\n';
+            }
+            QMessageBox::warning(this, "Внимание","Ваше сообщение содержит ошибку в слове " + err + ". Возможно вы имели ввиду:\n" + QString::fromStdString(res));
             client.ErrorMessageWasSend();
         }
 
