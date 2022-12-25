@@ -45,6 +45,18 @@ public:
         return room;
     }
 
+    Room getRoomByName(std::string name) const {
+        std::string sql = "SELECT * from rooms WHERE name = '" + name + "'";
+
+        pqxx::nontransaction N(*(con->getCon()));
+
+        pqxx::result res(N.exec(sql));
+
+        Room room(res[0][0].as<int>(), res[0][1].as<std::string>(), res[0][2].as<int>(), res[0][3].as<std::string>());
+
+        return room;
+    }
+
     Room getRoomByPort(int port) const {
         std::string sql = "SELECT * from rooms WHERE port = " + std::to_string(port);
 
@@ -143,6 +155,16 @@ public:
         W.exec(sql);
         W.commit();
         std::cout << "Records updated successfully" << std::endl;
+    }
+
+    Room checkFreeRoom(Room &room) {
+        std::vector<Room> rooms = getAllRooms();
+
+        for (auto &room: rooms)
+            if (room.name == "")
+                return room;
+
+        return Room();
     }
 
     bool checkRoomByName(const std::string &name) const {
