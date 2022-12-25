@@ -213,12 +213,13 @@ void MainWindow::on_createRoomButton_clicked()
 }
 
 bool MakeDecision(QString message) {
-    Hunspell spell ("../Client/ru_RU.aff", "../Client/ru_RU.dic");
+    Hunspell spell_ru("../Client/ru_RU.aff", "../Client/ru_RU.dic");
+    Hunspell spell_en("../Client/en_US.aff", "../Client/en_US.dic");
     bool result = true;
     QStringList words = message.split(' ');
 
     for (QString word : words) {
-        if (spell.spell(word.toStdString().c_str()) == 0) {
+        if (spell_ru.spell(word.toStdString().c_str()) == 0 && spell_en.spell(word.toStdString().c_str()) == 0) {
                 result = false;
                 break;
         }
