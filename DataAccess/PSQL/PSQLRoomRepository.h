@@ -114,9 +114,9 @@ public:
     void addRoom(Room room) {
         std::stringstream sql;
 
-        sql << "INSERT INTO rooms (id, name, password) "
+        sql << "INSERT INTO rooms (id, name, port, password) "
           "VALUES (";
-        sql << room.id << ',' << '\'' << room.name << '\'' << ',' << '\'' << room.password << '\''<< ");";
+        sql << room.id << ',' << '\'' << room.name << '\'' << ',' << room.port << ',' << '\'' << room.password << '\''<< ");";
 
         pqxx::work W(*(con->getCon()));
         W.exec(sql.str());
