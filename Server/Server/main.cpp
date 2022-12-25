@@ -183,17 +183,25 @@ private:
                         std::string rooms_password;
                         read_message_.get_room_inf(rooms_port, rooms_password);
 
-
-                        // если у комнаты нет пароля, вписываем туда полученный пароль и добавляем пользователя,  возвращаем true
-                        // если у комнаты есть пароль, сравниваем его с пользовательским
-                            // если совпал, добавляем пользователя, возвращаем true
-                            // если не совпал, возвращаем false
+                        User user = repUser.getUserByLogin(read_message_.get_username());
+                        Room room = repRoom.getRoomByPort(rooms_port);
+                        int is_correct = false;
+                        if (repRoom.checkRoomPassword(room, "")) {
+                            room.password = rooms_password;
+                            repRoom.updateRoom(room);
+                            repMessage.addUserToRoom(user, room);
+                            is_correct = true;
+                        }
+                        else if (repRoom.checkRoomPassword(room, rooms_password)) {
+                            repMessage.addUserToRoom(user, room);
+                            is_correct = true;
+                        }
 
                         Message msg;
                         msg.set_username(read_message_.get_username());
                         msg.set_type(Message::create_port);
 
-                        if (1 /*получилось добавить*/ ) {
+                        if (is_correct) {
                             msg.set_body(std::to_string(true));
                         }
                         else {
