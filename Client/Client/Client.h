@@ -13,6 +13,9 @@
 
 using boost::asio::ip::tcp;
 
+#define MAIN_SERVER "2001"
+#define ADDRESS_SERVER "127.0.0.1"
+
 class Client {
 public:
     Client(Ui::MainWindow *_ui) : resolver(io_context), ui(_ui) {}
@@ -24,14 +27,14 @@ public:
         }
     }
 
-    //system ports (2001)
+    //system ports (MAIN_SERVER)
 
     bool Registration(std::string& username, std::string& password) {
         boost::asio::io_context io_context;
 
         tcp::socket socket(io_context);
         tcp::resolver resolver(io_context);
-        boost::asio::connect(socket, resolver.resolve("127.0.0.1", "2001"));
+        boost::asio::connect(socket, resolver.resolve(ADDRESS_SERVER, MAIN_SERVER));
 
         Message msg(username, Hashing(password), Message::registration);
         msg.encode();
@@ -52,7 +55,7 @@ public:
 
         tcp::socket socket(io_context);
         tcp::resolver resolver(io_context);
-        boost::asio::connect(socket, resolver.resolve("127.0.0.1", "2001"));
+        boost::asio::connect(socket, resolver.resolve(ADDRESS_SERVER, MAIN_SERVER));
 
         Message msg(username, Hashing(password), Message::authorization);
         msg.encode();
@@ -84,10 +87,11 @@ public:
 
         tcp::socket socket(io_context);
         tcp::resolver resolver(io_context);
-        boost::asio::connect(socket, resolver.resolve("127.0.0.1", "2001"));
+        boost::asio::connect(socket, resolver.resolve(ADDRESS_SERVER, MAIN_SERVER));
 
-        std::string tmp_port = std::to_string(port);
-        Message msg(username, tmp_port, Message::create_port);
+        std::string tmp = std::to_string(port);
+        tmp += room_password;
+        Message msg(username, tmp, Message::create_port);
         msg.encode();
         boost::asio::write(socket, boost::asio::buffer(msg.data(), msg.length()));
 
@@ -108,7 +112,7 @@ public:
 
         tcp::socket socket(io_context);
         tcp::resolver resolver(io_context);
-        boost::asio::connect(socket, resolver.resolve("127.0.0.1", "2001"));
+        boost::asio::connect(socket, resolver.resolve(ADDRESS_SERVER, MAIN_SERVER));
 
         std::string empty_str = "1";
         Message msg(username, empty_str, Message::error_msg);
@@ -131,7 +135,7 @@ public:
 
         tcp::socket socket(io_context);
         tcp::resolver resolver(io_context);
-        boost::asio::connect(socket, resolver.resolve("127.0.0.1", "2001"));
+        boost::asio::connect(socket, resolver.resolve(ADDRESS_SERVER, MAIN_SERVER));
 
         std::string empty_str = "1";
         Message msg(username, empty_str, Message::get_statistic);
@@ -168,11 +172,9 @@ public:
 
 
 
-    bool ConnectToChat(int port, std::string &password) {
+    bool ConnectToChat(int port) {
         try {
-            if (CheckRommPassword(port, password))
-
-            endpoints = resolver.resolve("127.0.0.1", std::to_string(port));
+            endpoints = resolver.resolve(ADDRESS_SERVER, std::to_string(port));
             chat_client = new ChatClient(io_context, endpoints, ui);
             execution_thread = std::thread([this]() { io_context.run(); });
             connected_to_server = true;

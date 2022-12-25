@@ -16,8 +16,6 @@
 
 
 #define MAIN_SERVER 2001
-#define ALL_CHAT_SERVERS {2001, 2002, 2003, 2004, 2005}
-#define SERVERS_COUNT 5
 
 using boost::asio::ip::tcp;
 
@@ -186,16 +184,10 @@ private:
                         read_message_.get_room_inf(rooms_port, rooms_password);
 
 
-                        // если у комнаты нет пароля, вписываем туда полученный пароль и добавляем пользователя
+                        // если у комнаты нет пароля, вписываем туда полученный пароль и добавляем пользователя,  возвращаем true
                         // если у комнаты есть пароль, сравниваем его с пользовательским
-                            // если совпал, добавляем пользователя
-
-                        Room room = repRoom.getRoomByPort(rooms_port);
-                        if (room)
-
-                        User user = repUser.getUserByLogin(read_message_.get_username());
-                        Room room = repRoom.getRoomByPort(stoi(read_message_.get_body()));
-                        repMessage.addUserToRoom(user, room);
+                            // если совпал, добавляем пользователя, возвращаем true
+                            // если не совпал, возвращаем false
 
                         Message msg;
                         msg.set_username(read_message_.get_username());

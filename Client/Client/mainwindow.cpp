@@ -35,6 +35,8 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 MainWindow::~MainWindow() {
+    client.DisconnectToChat();
+    ui->chatTextWidget->clear();
     delete ui;
 }
 
@@ -97,12 +99,16 @@ void MainWindow::on_joinRoomButton_clicked()
 
 void MainWindow::on_exitButton_clicked()
 {
+    client.DisconnectToChat();
+    ui->chatTextWidget->clear();
     QApplication::quit();
 }
 
 
 void MainWindow::on_exitButton_4_clicked()
 {
+    client.DisconnectToChat();
+    ui->chatTextWidget->clear();
     QApplication::quit();
 }
 
@@ -121,12 +127,16 @@ void MainWindow::on_backButton_8_clicked()
 
 void MainWindow::on_exitButton_9_clicked()
 {
+    client.DisconnectToChat();
+    ui->chatTextWidget->clear();
     QApplication::quit();
 }
 
 
 void MainWindow::on_exitLobbyButton_clicked()
 {
+    client.DisconnectToChat();
+    ui->chatTextWidget->clear();
     QApplication::quit();
 }
 
@@ -232,7 +242,6 @@ bool MakeDecision(QString message, QString &err) {
 void MainWindow::on_sendButton_clicked()
 {
     sendMessage();
-
 }
 
 void MainWindow::sendMessage() {
@@ -280,6 +289,8 @@ void MainWindow::on_backButton_10_clicked()
 
 void MainWindow::on_exitButton_11_clicked()
 {
+    client.DisconnectToChat();
+    ui->chatTextWidget->clear();
     QApplication::quit();
 }
 
