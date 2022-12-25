@@ -79,7 +79,7 @@ public:
         return true;
     }
 
-    bool СreateNewRoom(int port) {
+    bool СreateNewRoom(int port, std::string &room_password) {
         boost::asio::io_context io_context;
 
         tcp::socket socket(io_context);
@@ -166,8 +166,12 @@ public:
         return false;
     }
 
-    bool ConnectToChat(int port) {
+
+
+    bool ConnectToChat(int port, std::string &password) {
         try {
+            if (CheckRommPassword(port, password))
+
             endpoints = resolver.resolve("127.0.0.1", std::to_string(port));
             chat_client = new ChatClient(io_context, endpoints, ui);
             execution_thread = std::thread([this]() { io_context.run(); });

@@ -21,7 +21,7 @@ HEADERS += \
 FORMS += \
     mainwindow.ui
 
-LIBS += -lhunspell
+#LIBS += -lhunspell
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

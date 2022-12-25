@@ -181,8 +181,17 @@ private:
                         do_write_sistem_msg(msg);
                     }
                     else if (read_message_.get_type() == Message::create_port) {
+                        int rooms_port;
+                        std::string rooms_password;
+                        read_message_.get_room_inf(rooms_port, rooms_password);
 
-                        //DB если комната есть, добавить пользователя в нее
+
+                        // если у комнаты нет пароля, вписываем туда полученный пароль и добавляем пользователя
+                        // если у комнаты есть пароль, сравниваем его с пользовательским
+                            // если совпал, добавляем пользователя
+
+                        Room room = repRoom.getRoomByPort(rooms_port);
+                        if (room)
 
                         User user = repUser.getUserByLogin(read_message_.get_username());
                         Room room = repRoom.getRoomByPort(stoi(read_message_.get_body()));
