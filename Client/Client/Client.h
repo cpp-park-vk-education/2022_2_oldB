@@ -130,7 +130,7 @@ public:
         return false;
     }
 
-    bool GetErrorStatistics(int &statistics) {
+    bool GetErrorStatistics(int &statistics, int &all_statistics) {
         boost::asio::io_context io_context;
 
         tcp::socket socket(io_context);
@@ -153,6 +153,11 @@ public:
                 tmp[j] = msg.get_body()[j];
 
             statistics = std::atoi(tmp);
+
+            for (size_t j = 0; j < Message::lenght_length; j++)
+                tmp[j] = msg.get_body()[Message::lenght_length + j];
+
+            all_statistics = std::atoi(tmp);
 
             return true;
         }
