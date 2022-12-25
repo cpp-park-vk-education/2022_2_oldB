@@ -171,6 +171,8 @@ public:
 
             pqxx::result res(N.exec(sql));
 
+            if (res.empty())
+                return false;
             return res[0][4].as<std::string>() == password;
         } catch (const std::exception &e) {
             return false;
