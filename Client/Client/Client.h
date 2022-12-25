@@ -89,7 +89,10 @@ public:
         tcp::resolver resolver(io_context);
         boost::asio::connect(socket, resolver.resolve(ADDRESS_SERVER, MAIN_SERVER));
 
-        std::string tmp = std::to_string(port);
+        std::string tmp;
+        if (port < 10000)
+            tmp.push_back('0');
+        tmp += std::to_string(port);
         tmp += room_password;
         Message msg(username, tmp, Message::create_port);
         msg.encode();
