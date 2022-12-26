@@ -88,7 +88,7 @@ public:
     }
 
     std::vector<int> getPortsByUser(User user) const {
-        std::string sql = "select r.port \
+        std::string sql = "select distinct r.port \
         from rooms r join messages m  on r.id = m.room_id  join users u on u.id = m.user_id \
         where u.id = " + std::to_string(user.id);
 
@@ -106,7 +106,7 @@ public:
     }
 
     std::vector<std::string> getPortsNameByUser(User user) const {
-        std::string sql = "select r.name \
+        std::string sql = "select distinct r.name \
         from rooms r join messages m  on r.id = m.room_id  join users u on u.id = m.user_id \
         where u.id = " + std::to_string(user.id);
 

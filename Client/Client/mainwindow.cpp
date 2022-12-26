@@ -62,7 +62,7 @@ void MainWindow::on_loginButton_clicked()
     std::string strPassword = password.toStdString();
 
     if (client.Authorization(strLogin, strPassword)) {
-        std::vector<int> userPorts;
+        std::vector<std::string> userPorts;
         if (client.GetUsersPorts(userPorts)) {
             qDebug() << "Порты считаны";
         }
@@ -70,7 +70,7 @@ void MainWindow::on_loginButton_clicked()
         QString strPort;
         ui->roomsList->clear();
         for (auto port : userPorts) {
-            strPort = QString::number(port);
+            strPort = QString::fromStdString(port);
             ui->roomsList->addItem(strPort);
         }
 
@@ -85,13 +85,10 @@ void MainWindow::on_loginButton_clicked()
 
 void MainWindow::on_joinRoomButton_clicked()
 {
-    QString roomPort = ui->roomsList->currentItem()->text();
-    bool correctConverted;
-    int portNum = roomPort.toInt(&correctConverted);
-    if (correctConverted && portNum > FREE_PORT_NUM_START && portNum < FREE_PORT_NUM_END) {
-        qDebug() << "SUCCESS! port = " << portNum << '\n';
-        client.ConnectToChat(portNum); // CONNECTING FIXME
-
+    QString roomName = ui->roomsList->currentItem()->text();
+    qDebug() << "SUCCESS! port = " << roomName << '\n';
+    if (client.ConnectToChat(roomName.toStdString())) {
+        qDebug() << "SUCCESS! port = " << roomName << '\n';
         ui->stackedWidget->setCurrentIndex(1);
     }
 }
@@ -171,14 +168,14 @@ void MainWindow::on_createRoomButton_clicked()
     auto const newRoomPort(ui->newRoomPort->text());
     auto const newRoomPassword(ui->newRoomPassword->text());
 
-    qDebug() << "new_room_posrt =" << newRoomPort;
+    qDebug() << "new_room_name =" << newRoomPort;
     qDebug() << "new_room_posrt =" << newRoomPassword;
 
     std::string strPort = newRoomPort.toStdString();
     std::string strPassword = newRoomPassword.toStdString();
 
-    if (client.СreateNewRoom(stoi(strPort), strPassword)) {
-        std::vector<int> userPorts;
+    if (client.СreateNewRoom(strPort, strPassword)) {
+        std::vector<std::string> userPorts;
         if (client.GetUsersPorts(userPorts)) {
             qDebug() << "Порты считаны";
         }
@@ -186,7 +183,7 @@ void MainWindow::on_createRoomButton_clicked()
         QString strPort;
         ui->roomsList->clear();
         for (auto port : userPorts) {
-            strPort = QString::number(port);
+            strPort = QString::fromStdString(port);
             ui->roomsList->addItem(strPort);
         }
 
@@ -194,6 +191,8 @@ void MainWindow::on_createRoomButton_clicked()
     }
     else {
         qDebug() << "ошибка создания комнаты";
+        QMessageBox::information(this, "Ошибка", "Комната с таким именем уже создана, ваш пароль не верный");
+
     }
 }
 
