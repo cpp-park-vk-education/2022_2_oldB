@@ -45,14 +45,15 @@ public:
         return message + header_length;
     }
 
-    void get_room_inf(int &port, std::string &password) {
-        char tmp[Message::lenght_length + 1] = "";
-        for (size_t j = 0; j < Message::lenght_length; j++)
-            tmp[j] = get_body()[j];
-        port = std::atoi(tmp);
+    void get_room_inf(std::string &name, std::string &password) {
+        int j = 0;
+        while (get_body()[j] != '\0') {
+            name.push_back(get_body()[j++]);
+        }
 
-        for (size_t j = Message::lenght_length; j < get_body().size(); j++) {
-            password.push_back(get_body()[j]);
+        j++;
+        for (size_t i = j; i < get_body().size(); i++) {
+            password.push_back(get_body()[i]);
         }
     }
 
@@ -126,17 +127,26 @@ public:
         encode_inf();
     }
 
+    void convert_rooms_to_string(std::vector<int>& ports, std::vector<std::string>& names) {
+        std::string res;
+        res += ports.size();
+        for (size_t i = 0; i < ports.size(); i++) {
+            if (ports[i] < 10000)
+                res += '0';
+            res += std::to_string(ports[i]);
+            res += names[i];
+            res += '\0';
+        }
+
+        body = res;
+    }
+
     void convert_ports_to_string(std::vector<int>& ports) {
         std::string res;
-        res.resize(lenght_length * ports.size());
-        for (int i = 0; i < ports.size(); i++) {
-            size_t t = 10;
-            int tmp = ports[i];
-            for (int j = lenght_length - 1; j >= 0; j--) {
-                res[i * lenght_length + j] = std::to_string(tmp % t)[0];
-                tmp -= tmp % t;
-                t *= 10;
-            }
+        for (size_t i = 0; i < ports.size(); i++) {
+            if (ports[i] < 10000)
+                res += '0';
+            res += std::to_string(ports[i]);
         }
 
         body = res;

@@ -66,23 +66,29 @@ public:
         boost::asio::read(socket, boost::asio::buffer(msg.inf(), msg.inf_length()));
         msg.decode_text();
 
-        if (msg.body_length() == 1 && msg.get_body()[0] == '0')
+        if (msg.body_length() == 1 && msg.get_body()[0] == '1')
             return false;
 
-        ports.clear();
-        for (size_t i = 0; i < msg.get_body().size() / Message::lenght_length; i++) {
-            char tmp[Message::lenght_length + 1] = "";
-            for (size_t j = 0; j < Message::lenght_length; j++)
-                tmp[j] = msg.get_body()[i * Message::lenght_length + j];
+        int cur = 0;
+        for (int i = 0; i < msg.get_body()[0]; i++) {
+            std::string tmp_num;
+            for (int j = 0; j < Message::lenght_length; j++) {
+                tmp_num.push_back(msg.get_body()[cur++]);
+            }
+            ports.push_back(stoi(tmp_num));
 
-            ports.push_back(std::atoi(tmp));
+            std::string tmp_name;
+            while (msg.get_body()[cur] != '\0')
+                tmp_name.push_back(msg.get_body()[cur++]);
+            cur++;
+            ports_name.push_back(tmp_name);
         }
 
         this->username = msg.get_username();
         return true;
     }
 
-    bool СreateNewRoom(int port, std::string &room_password) {
+    bool СreateNewRoom(std::string &room_name, std::string &room_password) {
         boost::asio::io_context io_context;
 
         tcp::socket socket(io_context);
@@ -90,9 +96,8 @@ public:
         boost::asio::connect(socket, resolver.resolve(ADDRESS_SERVER, MAIN_SERVER));
 
         std::string tmp;
-        if (port < 10000)
-            tmp.push_back('0');
-        tmp += std::to_string(port);
+        tmp += room_name;
+        tmp += '\0';
         tmp += room_password;
         Message msg(username, tmp, Message::create_port);
         msg.encode();
@@ -103,8 +108,15 @@ public:
         boost::asio::read(socket, boost::asio::buffer(msg.inf(), msg.inf_length()));
         msg.decode_text();
 
-        if (msg.get_body()[0]) {
-            ports.push_back(port);
+        if (msg.get_body().size() > 1) {
+            std::string tmp_num;
+            std::string tmp_name;
+            for (size_t i = 0; i < 5; i++)
+                tmp_num.push_back(msg.get_body()[i]);
+            for (size_t i = 5; i < msg.get_body().size(); i++)
+                tmp_name.push_back(msg.get_body()[i]);
+            ports.push_back(stoi(tmp_num));
+            ports_name.push_back(tmp_name);
             return true;
         }
         return false;
@@ -169,9 +181,9 @@ public:
 
     //users ports
 
-    bool GetUsersPorts(std::vector<int>& users_ports) {
-        if (ports.size()) {
-            users_ports = ports;
+    bool GetUsersPorts(std::vector<std::string>& users_ports) {
+        if (ports_name.size()) {
+            users_ports = ports_name;
             return true;
         }
 
@@ -180,9 +192,14 @@ public:
 
 
 
-    bool ConnectToChat(int port) {
+    bool ConnectToChat(std::string name) {
         try {
-            endpoints = resolver.resolve(ADDRESS_SERVER, std::to_string(port));
+            int i = 0;
+            while (ports_name[i] != name && i < 100000)
+                i++;
+            if (i > 70000)
+                return false;
+            endpoints = resolver.resolve(ADDRESS_SERVER, std::to_string(ports[i]));
             chat_client = new ChatClient(io_context, endpoints, ui);
             execution_thread = std::thread([this]() { io_context.run(); });
             connected_to_server = true;
@@ -231,6 +248,7 @@ private:
 
     std::string username;
     std::vector<int> ports;
+    std::vector<std::string> ports_name;
     Ui::MainWindow *ui;
 };
 

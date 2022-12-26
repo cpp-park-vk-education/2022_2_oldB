@@ -105,6 +105,24 @@ public:
         return ports;
     }
 
+    std::vector<std::string> getPortsNameByUser(User user) const {
+        std::string sql = "select r.name \
+        from rooms r join messages m  on r.id = m.room_id  join users u on u.id = m.user_id \
+        where u.id = " + std::to_string(user.id);
+
+        pqxx::nontransaction N(*(con->getCon()));
+
+        pqxx::result res(N.exec(sql));
+
+        std::vector<std::string> ports;
+
+        for (pqxx::result::const_iterator c = res.begin(); c != res.end(); ++c) {
+            ports.push_back(c[0].as<std::string>());
+        }
+
+        return ports;
+    }
+
     std::vector<int> getPortsByUsername(std::string username) const {
         std::string sql = "select distinct r.port \
         from rooms r join messages m  on r.id = m.room_id  join users u on u.id = m.user_id \
@@ -157,7 +175,7 @@ public:
         std::cout << "Records updated successfully" << std::endl;
     }
 
-    Room checkFreeRoom(Room &room) {
+    Room checkFreeRoom(/*Room &room*/) {
         std::vector<Room> rooms = getAllRooms();
 
         for (auto &room: rooms)
