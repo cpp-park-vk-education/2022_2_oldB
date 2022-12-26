@@ -108,7 +108,7 @@ void MainWindow::on_backButton_4_clicked()
 
 void MainWindow::on_backButton_8_clicked()
 {
-    ui->stackedWidget_2->setCurrentIndex(0);
+    ui->stackedWidget_2->setCurrentIndex(1);
 }
 
 
@@ -272,6 +272,18 @@ void ChatClient::do_read_body() {
 
 void MainWindow::on_backButton_10_clicked()
 {
-    ui->stackedWidget_2->setCurrentIndex(2);
+    ui->stackedWidget_2->setCurrentIndex(3);
+}
+
+
+void MainWindow::on_backButton_12_clicked()
+{
+    ui->stackedWidget_2->setCurrentIndex(3);
+}
+
+
+void MainWindow::on_pushButton_clicked()
+{
+    ui->stackedWidget_2->setCurrentIndex(5);
 }
 
