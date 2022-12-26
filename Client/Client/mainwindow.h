@@ -60,6 +60,10 @@ private slots:
 
 //    void on_exitButton_11_clicked();
 
+    void on_backButton_12_clicked();
+
+    void on_pushButton_clicked();
+
 private:
     void sendMessage();
 
