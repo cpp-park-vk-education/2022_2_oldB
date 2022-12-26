@@ -163,15 +163,8 @@ private:
                         msg.set_username(read_message_.get_username());
                         msg.set_type(Message::authorization);
                         if (is_correct) {
-                            std::vector<Room> rooms = repRoom.getRoomsByUser(repUser.getUserByLogin(read_message_.get_username()));
-                            std::vector<int> tmp_p;
-                            std::vector<std::string> tmp_n;
-
-                            for (auto &room : rooms) {
-                                tmp_p.push_back(room.port);
-                                tmp_n.push_back(room.name);
-                            }
-
+                            std::vector<int> tmp_p = repRoom.getPortsByUser(repUser.getUserByLogin(read_message_.get_username()));
+                            std::vector<std::string> tmp_n = repRoom.getPortsNameByUser(repUser.getUserByLogin(read_message_.get_username()));
                             msg.convert_rooms_to_string(tmp_p, tmp_n);
                         }
                         else {
