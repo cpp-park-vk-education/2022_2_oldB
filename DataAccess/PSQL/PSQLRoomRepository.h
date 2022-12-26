@@ -157,7 +157,7 @@ public:
         std::cout << "Records updated successfully" << std::endl;
     }
 
-    Room checkFreeRoom(Room &room) {
+    Room checkFreeRoom(/*Room &room*/) {
         std::vector<Room> rooms = getAllRooms();
 
         for (auto &room: rooms)

@@ -162,53 +162,65 @@ private:
                         Message msg;
                         msg.set_username(read_message_.get_username());
                         msg.set_type(Message::authorization);
-                        //if (1 /* if user in DB */) {
                         if (is_correct) {
+                            std::vector<Room> rooms = repRoom.getRoomsByUser(repUser.getUserByLogin(read_message_.get_username()));
+                            std::vector<int> tmp_p;
+                            std::vector<std::string> tmp_n;
 
-                            //DB get users ports as std::vector<int>
-                            std::vector<int> ports = repRoom.getPortsByUsername(read_message_.get_username());
+                            for (auto &room : rooms) {
+                                tmp_p.push_back(room.port);
+                                tmp_n.push_back(room.name);
+                            }
 
-                            //std::vector<int> ports = { 2001 };
-                            msg.convert_ports_to_string(ports);
+                            msg.convert_rooms_to_string(tmp_p, tmp_n);
                         }
                         else {
-                            msg.set_body(std::to_string(false));
+                            msg.set_body("1");
                         }
 
                         msg.encode();
                         do_write_sistem_msg(msg);
                     }
                     else if (read_message_.get_type() == Message::create_port) {
-                        int rooms_port;
+                        std::string res;
+                        std::string rooms_name;
                         std::string rooms_password;
-                        read_message_.get_room_inf(rooms_port, rooms_password);
+                        read_message_.get_room_inf(rooms_name, rooms_password);
 
                         User user = repUser.getUserByLogin(read_message_.get_username());
-                        Room room = repRoom.getRoomByPort(rooms_port);
-                        int is_correct = false;
-                        if (repRoom.checkRoomPassword(room, "")) {
-                            room.password = rooms_password;
-                            repRoom.updateRoom(room);
-                            repMessage.addUserToRoom(user, room);
-                            is_correct = true;
-                        }
-                        else if (repRoom.checkRoomPassword(room, rooms_password)) {
-                            repMessage.addUserToRoom(user, room);
-                            is_correct = true;
-                        }
 
-                        Message msg;
-                        msg.set_username(read_message_.get_username());
-                        msg.set_type(Message::create_port);
-
-                        if (is_correct) {
-                            msg.set_body(std::to_string(true));
+                        if (repRoom.checkRoomByName(rooms_name)) {
+                            Room room = repRoom.getRoomByName(rooms_name);
+                            if (room.password == rooms_password) {
+                                repMessage.addUserToRoom(user, room);
+                                if (room.port < 10000)
+                                    res = '0' + std::to_string(room.port);
+                                else
+                                    res = std::to_string(room.port);
+                                res += room.name;
+                            }
+                            else {
+                                res = '1';
+                            }
                         }
                         else {
-                            msg.set_body(std::to_string(false));
+                            Room new_rom = repRoom.checkFreeRoom();
+                            if (new_rom.name == "") {
+                                new_rom.password = rooms_password;
+                                new_rom.name = rooms_name;
+                                repRoom.updateRoom(new_rom);
+                                repMessage.addUserToRoom(user, new_rom);
+                                if (new_rom.port < 10000)
+                                    res = '0' + std::to_string(new_rom.port);
+                                else
+                                    res = std::to_string(new_rom.port);
+                                res += new_rom.name;
+                            }
+                            else
+                                res = '2';
                         }
 
-                        msg.encode();
+                        Message msg(read_message_.get_username(), res, Message::create_port);
                         do_write_sistem_msg(msg);
                     }
                     else if (read_message_.get_type() == Message::error_msg) {
