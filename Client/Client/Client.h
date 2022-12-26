@@ -192,9 +192,14 @@ public:
 
 
 
-    bool ConnectToChat(int port) {
+    bool ConnectToChat(std::string name) {
         try {
-            endpoints = resolver.resolve(ADDRESS_SERVER, std::to_string(port));
+            int i = 0;
+            while (ports_name[i] != name && i < 100000)
+                i++;
+            if (i > 70000)
+                return false;
+            endpoints = resolver.resolve(ADDRESS_SERVER, std::to_string(ports[i]));
             chat_client = new ChatClient(io_context, endpoints, ui);
             execution_thread = std::thread([this]() { io_context.run(); });
             connected_to_server = true;
