@@ -33,11 +33,6 @@ public:
         io_service_.post([this]() { socket_.close(); });   // задание на закрытие сокета добавляется в очередь сервиса
     }
 
-private slots:
-    void on_createRoomButton_4_clicked();
-
-    void on_createRoomButton_4_clicked(bool checked);
-
 private:
     void do_connect(tcp::resolver::iterator ep_iter) {
         boost::asio::async_connect(socket_, ep_iter,
