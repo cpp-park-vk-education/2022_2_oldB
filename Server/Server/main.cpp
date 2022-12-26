@@ -190,6 +190,7 @@ private:
                                     res = '0' + std::to_string(room.port);
                                 else
                                     res = std::to_string(room.port);
+                                res += '\0';
                                 res += room.name;
                             }
                             else {
@@ -207,6 +208,7 @@ private:
                                     res = '0' + std::to_string(new_rom.port);
                                 else
                                     res = std::to_string(new_rom.port);
+                                res += '\0';
                                 res += new_rom.name;
                             }
                             else

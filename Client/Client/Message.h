@@ -129,7 +129,7 @@ public:
 
     void convert_rooms_to_string(std::vector<int>& ports, std::vector<std::string>& names) {
         std::string res;
-        res += ports.size();
+
         for (size_t i = 0; i < ports.size(); i++) {
             if (ports[i] < 10000)
                 res += '0';

@@ -69,8 +69,8 @@ public:
         if (msg.body_length() == 1 && msg.get_body()[0] == '1')
             return false;
 
-        int cur = 0;
-        for (int i = 0; i < msg.get_body()[0]; i++) {
+        size_t cur = 0;
+        while (cur < msg.get_body().size()) {
             std::string tmp_num;
             for (int j = 0; j < Message::lenght_length; j++) {
                 tmp_num.push_back(msg.get_body()[cur++]);
