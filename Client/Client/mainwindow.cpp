@@ -143,6 +143,38 @@ void MainWindow::on_createAccBtn_clicked()
     }
 }
 
+void MainWindow::on_createRoomButton_4_clicked() {
+    auto const newRoomPort(ui->newRoomPort_4->text());
+    auto const newRoomPassword(ui->newRoomPassword_4->text());
+
+    qDebug() << "new_room_name =" << newRoomPort;
+    qDebug() << "new_room_posrt =" << newRoomPassword;
+
+    std::string strPort = newRoomPort.toStdString();
+    std::string strPassword = newRoomPassword.toStdString();
+
+    if (client.СreateNewRoom(strPort, strPassword)) {
+        std::vector<std::string> userPorts;
+        if (client.GetUsersPorts(userPorts)) {
+            qDebug() << "Порты считаны";
+        }
+
+        QString strPort;
+        ui->roomsList->clear();
+        for (auto port : userPorts) {
+            strPort = QString::fromStdString(port);
+            ui->roomsList->addItem(strPort);
+        }
+
+        ui->stackedWidget_2->setCurrentIndex(3);
+    }
+    else {
+        qDebug() << "ошибка подключения к комнате";
+        QMessageBox::information(this, "Ошибка", "Пароль неверный");
+
+    }
+}
+
 
 void MainWindow::on_returnFromRoomsBtn_clicked()
 {
@@ -159,7 +191,7 @@ void MainWindow::on_getStatButton_clicked()
     int stat;
     int all_stat;
     client.GetErrorStatistics(stat, all_stat);
-    QMessageBox::information(this, "Статистика", "Вы отправляете " + QString::number(stat) + "% сообщений с ошибками\n" + "Это больше чем у " + QString::number(all_stat) + "% пользователей");
+    QMessageBox::information(this, "Статистика", "Вы отправляете " + QString::number(stat) + "% сообщений с ошибками\n" + "Это больше, чем у " + QString::number(all_stat) + "% пользователей");
 }
 
 
@@ -246,7 +278,7 @@ void MainWindow::sendMessage() {
                 res += word;
                 res += '\n';
             }
-            QMessageBox::warning(this, "Внимание","Ваше сообщение содержит ошибку в слове " + err + ". Возможно вы имели ввиду:\n" + QString::fromStdString(res));
+            QMessageBox::warning(this, "Внимание","Ваше сообщение содержит ошибку в слове " + err + ". Возможно вы имели в виду:\n" + QString::fromStdString(res));
             client.ErrorMessageWasSend();
         }
 
