@@ -144,8 +144,8 @@ void MainWindow::on_createAccBtn_clicked()
 }
 
 void MainWindow::on_createRoomButton_4_clicked() {
-    auto const newRoomPort(ui->newRoomPort->text());
-    auto const newRoomPassword(ui->newRoomPassword->text());
+    auto const newRoomPort(ui->newRoomPort_4->text());
+    auto const newRoomPassword(ui->newRoomPassword_4->text());
 
     qDebug() << "new_room_name =" << newRoomPort;
     qDebug() << "new_room_posrt =" << newRoomPassword;
