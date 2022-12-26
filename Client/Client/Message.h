@@ -131,9 +131,17 @@ public:
         std::string res;
 
         for (size_t i = 0; i < ports.size(); i++) {
-            if (ports[i] < 10000)
-                res += '0';
-            res += std::to_string(ports[i]);
+            char tmp_str[lenght_length];
+            size_t t = 10;
+
+            int tmp = ports[i];
+            for (int i = lenght_length - 1; i >= 0; i--) {
+                tmp_str[i] = std::to_string(tmp % t)[0];
+                tmp -= tmp % t;
+                t *= 10;
+            }
+            res += tmp_str;
+
             res += names[i];
             res += '\0';
         }
@@ -143,10 +151,19 @@ public:
 
     void convert_ports_to_string(std::vector<int>& ports) {
         std::string res;
+
         for (size_t i = 0; i < ports.size(); i++) {
-            if (ports[i] < 10000)
-                res += '0';
-            res += std::to_string(ports[i]);
+            char tmp_str[lenght_length];
+            size_t t = 10;
+
+            int tmp = ports[i];
+            for (int i = lenght_length - 1; i >= 0; i--) {
+                tmp_str[i] = std::to_string(tmp % t)[0];
+                tmp -= tmp % t;
+                t *= 10;
+            }
+
+            res += tmp_str;
         }
 
         body = res;
