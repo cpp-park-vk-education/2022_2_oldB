@@ -63,6 +63,7 @@ private slots:
     void on_backButton_12_clicked();
 
     void on_pushButton_clicked();
+    void on_createRoomButton_4_clicked();
 
 private:
     void sendMessage();
